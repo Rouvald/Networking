@@ -1,0 +1,8 @@
+#! /bin/bash
+# ========== НАЧАЛО ==========
+
+for file in `git diff --staged --name-only --diff-filter=ACMR | grep -i -E '\.(cpp|hpp)$'`; do
+    echo ${file}
+    clang-format -i -style=file ${file}
+    git add ${file}
+done
