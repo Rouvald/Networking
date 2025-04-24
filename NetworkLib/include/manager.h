@@ -26,7 +26,6 @@ public:
 
     void connect();
     void disconnect();
-    std::string getKey_boost(const std::string& user);
 
     std::string request(const std::string& target, const std::string& objectKey,
         const std::string& hash = "");

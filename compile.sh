@@ -1,8 +1,9 @@
 #!/bin/bash
 
-build_type="Debug"
+build_type="Release"
 build_dir="build"
-cmake_generator="Unix Makefiles" # @todo: Ninja?
+cmake_generator="Ninja"
+conan_profile="conanProfileRelease"
 
 case $1 in
     -b )
@@ -20,11 +21,13 @@ then
 elif [[ "${OSTYPE}" == "msys" ]]; 
 then
     build_dir="build_win_${build_type}"
-    cmake_generator="MinGW Makefiles"
+    cmake_generator="Ninja"
 fi
 
 rm -rf "${build_dir}"
 mkdir "${build_dir}"
+
+conan install . --profile=${conan_profile} --output-folder=""${build_dir}"" --build=missing
 
 cmake -DCMAKE_BUILD_TYPE:STRING=${build_type} -DCMAKE_CXX_COMPILER=g++ -S "." -B "${build_dir}" -G "${cmake_generator}"
 cmake --build "${build_dir}" --config ${build_type} --target clean -j 18 --

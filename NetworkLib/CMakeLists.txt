@@ -1,4 +1,4 @@
-project(networklib)
+project(${NETWORK_LIB_NAME})
 
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
@@ -22,20 +22,20 @@ set(HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/manager.h"
 )
 
-add_library(${PROJECT_NAME} INTERFACE
+add_library(${PROJECT_NAME} STATIC
     ${SOURCES}
     ${HEADERS}
 )
 
-target_include_directories(${PROJECT_NAME} INTERFACE
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(${PROJECT_NAME} INTERFACE
-        Boost::system
+target_link_libraries(${PROJECT_NAME} PUBLIC
         Boost::thread
         Boost::json
         Boost::url
+        Boost::system
         OpenSSL::SSL
         OpenSSL::Crypto
 )

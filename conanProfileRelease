@@ -1,0 +1,20 @@
+[settings]
+os = Windows
+arch = x86_64
+compiler = gcc
+compiler.version = 14
+compiler.libcxx = libstdc++11
+compiler.cppstd = 20
+build_type = Release
+
+[conf]
+tools.build:compiler_executables={"c": "C:/msys64/mingw64/bin/gcc.exe", "cpp": "C:/msys64/mingw64/bin/g++.exe"}
+tools.cmake.cmaketoolchain:generator = Ninja
+#tools.cmake.cmaketoolchain:ninja_program = "C:/msys64/mingw64/bin/ninja.exe"
+#tools.cmake.cmaketoolchain:cmake_program = "C:/msys64/mingw64/bin/cmake.exe"
+tools.files.download:retry = 3
+tools.files.download:retry_wait = 5
+
+[buildenv]
+CC = C:/msys64/mingw64/bin/gcc.exe
+CXX = C:/msys64/mingw64/bin/g++.exe
