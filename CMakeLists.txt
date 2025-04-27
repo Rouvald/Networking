@@ -1,18 +1,28 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.30)
 
+# setup conan profiles
+include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
+setup_conan_profiles()
 
-project(networking)
+# common settings
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 0)
+set(VERSION_PATCH 1)
+set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
+project(networking VERSION ${PROJECT_VERSION} LANGUAGES CXX)
+
+# setup base c++ params
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23 -Wall -Wextra -Wpedantic -fpermissive -fPIC -fmax-errors=5 ") # -pthread
-
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
 
+# add network lib
 set(NETWORK_LIB_NAME "networklib")
 add_subdirectory(NetworkLib)
 

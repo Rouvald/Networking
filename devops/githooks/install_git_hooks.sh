@@ -1,3 +1,3 @@
 #! /bin/bash
 
-cp -r /hooks/ ../../.git/
+cp -r hooks/ ../../.git/
