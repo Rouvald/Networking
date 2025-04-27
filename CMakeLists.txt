@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.28)
 
 # setup conan profiles
 include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
@@ -24,7 +24,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
 
 # add network lib
 set(NETWORK_LIB_NAME "networklib")
-add_subdirectory(NetworkLib)
+add_subdirectory(${NETWORK_LIB_NAME})
 
 add_executable(${PROJECT_NAME} main.cpp)
 
