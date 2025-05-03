@@ -7,7 +7,7 @@ conan_profile_dir="conanProfiles"
 conan_profile="conanProfileRelease"
 
 case $1 in
-    -b )
+    -d )
     build_type="Debug"
     ;;
     -r )

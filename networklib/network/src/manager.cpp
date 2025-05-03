@@ -9,8 +9,7 @@
 #include <boost/url.hpp>
 
 Manager::Manager(basio::any_io_executor executor, const std::string& url)
-    : _executor(executor), _ssl_ctx(basio::ssl::context::tls_client),
-      _resolver(executor), _stream(executor, _ssl_ctx)
+    : _executor(executor), _ssl_ctx(basio::ssl::context::tls_client), _resolver(executor), _stream(executor, _ssl_ctx)
 {
     boost::urls::url_view urlV(url);
 
@@ -30,8 +29,7 @@ void Manager::connect()
     {
         auto results = _resolver.resolve(_host, _port);
 
-        _stream =
-            bbeast::ssl_stream<basio::ip::tcp::socket>(_executor, _ssl_ctx);
+        _stream = bbeast::ssl_stream<basio::ip::tcp::socket>(_executor, _ssl_ctx);
 
         basio::connect(_stream.next_layer(), results);
         _stream.handshake(basio::ssl::stream_base::client);
@@ -40,8 +38,7 @@ void Manager::connect()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__
-                  << ": Exception: " << e.what() << std::endl;
+        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__ << ": Exception: " << e.what() << std::endl;
     }
 }
 
@@ -58,18 +55,15 @@ void Manager::disconnect()
     }
     catch (const std::exception& e)
     {
-        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__
-                  << ": Exception: " << e.what() << std::endl;
+        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__ << ": Exception: " << e.what() << std::endl;
     }
 }
 
-std::string Manager::request(const std::string& target,
-    const std::string& objectKey, const std::string& hash)
+std::string Manager::request(const std::string& target, const std::string& objectKey, const std::string& hash)
 {
     try
     {
-        bbeast::http::request<bbeast::http::empty_body> req{
-            bbeast::http::verb::get, target, 11};
+        bbeast::http::request<bbeast::http::empty_body> req{bbeast::http::verb::get, target, 11};
         req.set(bbeast::http::field::host, this->_host);
         req.set(bbeast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);
         req.set(bbeast::http::field::connection, "keep-alive");
@@ -98,8 +92,7 @@ std::string Manager::request(const std::string& target,
     }
     catch (const std::exception& e)
     {
-        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__
-                  << ": Exception: " << e.what() << std::endl;
+        std::cerr << "(" << __FUNCTION__ << "):" << __LINE__ << ": Exception: " << e.what() << std::endl;
         return "";
     }
 }

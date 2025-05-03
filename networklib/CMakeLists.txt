@@ -15,11 +15,17 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL 3.0.0 REQUIRED) # 3.2.0
 
 set(SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/manager.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/manager.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACustom.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCustom.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/SHA256Custom.cpp"
 )
 
 set(HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/manager.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/manager.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACustom.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCustom.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/SHA256Custom.h"
 )
 
 add_library(${PROJECT_NAME} STATIC
@@ -28,7 +34,8 @@ add_library(${PROJECT_NAME} STATIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        "${CMAKE_CURRENT_SOURCE_DIR}/network/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
