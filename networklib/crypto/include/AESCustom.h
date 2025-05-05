@@ -3,7 +3,7 @@
 #ifndef AES_H_
 #define AES_H_
 
-#include <iomanip>
+#include <cstdint>
 #include <vector>
 
 enum class AESKeyLength : uint8_t

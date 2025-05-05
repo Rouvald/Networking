@@ -3,6 +3,7 @@
 #ifndef SHA256CUSTOM_H
 #define SHA256CUSTOM_H
 
+#include <cstdint>
 #include <iomanip>
 #include <string>
 #include <vector>

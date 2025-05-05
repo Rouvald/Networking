@@ -2,6 +2,7 @@
 
 #include <SHA256Custom.h>
 
+#include <cstring>
 #include <sstream>
 
 constexpr int32_t a = 0;
