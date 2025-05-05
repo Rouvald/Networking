@@ -17,7 +17,7 @@ esac
 
 if [[ "${OSTYPE}" == "linux-gnu" ]];
 then
-    build_dir="build_${build_type}"
+    build_dir="build_linux_${build_type}"
     cmake_generator="Ninja"
     conan_profile="conanProfile${build_type}_Linux"
 elif [[ "${OSTYPE}" == "msys" ]]; 

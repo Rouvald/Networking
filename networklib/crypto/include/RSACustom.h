@@ -36,7 +36,7 @@ private:
     bool isPrime(const bmp::cpp_int& n, const int32_t& k = 10);
     void generateKeys();
     std::vector<uint8_t> pkcs1v15_pad(const std::string& message, size_t k);
-    std::string unpad(const std::vector<uint8_t>& padded);
+    static std::string unpad(const std::vector<uint8_t>& padded);
 
     bmp::cpp_int _prime_p,  // first big value
         _prime_q,  // second big value

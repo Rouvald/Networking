@@ -44,7 +44,9 @@ bmp::cpp_int RSACustom::modInverse(const bmp::cpp_int& val, const bmp::cpp_int& 
 {
     bmp::cpp_int valIn{val};
     bmp::cpp_int modIn{mod};
-    bmp::cpp_int m0 = modIn, t, q;
+    bmp::cpp_int m0 = modIn;
+    bmp::cpp_int t;
+    bmp::cpp_int q;
     bmp::cpp_int x0 = 0, x1 = 1;
     while (valIn > 1)
     {
@@ -57,7 +59,9 @@ bmp::cpp_int RSACustom::modInverse(const bmp::cpp_int& val, const bmp::cpp_int& 
         x1 = t;
     }
     if (x1 < 0)
+    {
         x1 += m0;
+    }
     return x1;
 }
 
