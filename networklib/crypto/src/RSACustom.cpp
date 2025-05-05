@@ -261,3 +261,14 @@ bool RSACustom::verify(const std::string& message, const bmp::cpp_int& signature
 
     return decrypted_sig == hash_int;
 }
+
+RSAPublicKey RSACustom::getPublicKey() const
+{
+    return RSAPublicKey{_public_exponent_e, _moduls_n};
+}
+
+void RSACustom::loadPublicKey(const RSAPublicKey& publicKey)
+{
+    _public_exponent_e = publicKey.exponent;
+    _moduls_n = publicKey.modulus;
+}

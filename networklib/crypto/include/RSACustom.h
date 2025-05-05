@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <RSAPublicKey.h>
 
 namespace bmp = boost::multiprecision;
 
@@ -28,13 +29,17 @@ public:
     bmp::cpp_int sign(const std::string& message);
     bool verify(const std::string& message, const bmp::cpp_int& signature);
 
+    void generateKeys();
+
+    RSAPublicKey getPublicKey() const;
+    void loadPublicKey(const RSAPublicKey& publicKey);
+
 private:
     static bmp::cpp_int modPow(const bmp::cpp_int& base, const bmp::cpp_int& exp, const bmp::cpp_int& mod);
     static bmp::cpp_int gcd(const bmp::cpp_int& a, const bmp::cpp_int& b);
     static bmp::cpp_int modInverse(const bmp::cpp_int& val, const bmp::cpp_int& mod);
     bmp::cpp_int generatePrime(const int32_t& bits);
     bool isPrime(const bmp::cpp_int& n, const int32_t& k = 10);
-    void generateKeys();
     std::vector<uint8_t> pkcs1v15_pad(const std::string& message, size_t k);
     static std::string unpad(const std::vector<uint8_t>& padded);
 

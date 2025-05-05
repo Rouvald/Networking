@@ -13,7 +13,6 @@ for dir in "${dirs[@]}";
 do
   if [ -d "${dir}" ];
   then
-    echo "Removing dir:${dir}"
     rm -vrf "${dir}"
   fi
 

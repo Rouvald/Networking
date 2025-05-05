@@ -15,6 +15,8 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL 3.0.0 REQUIRED) # 3.2.0
 
 set(SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/tls/src/HandshakeContext.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tls/src/SessionCipher.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/network/src/manager.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACustom.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCustom.cpp"
@@ -22,7 +24,10 @@ set(SOURCES
 )
 
 set(HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/tls/include/HandshakeContext.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tls/include/SessionCipher.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/network/include/manager.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSAPublicKey.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACustom.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCustom.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/SHA256Custom.h"
@@ -36,6 +41,7 @@ add_library(${PROJECT_NAME} STATIC
 target_include_directories(${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/network/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tls/include"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC

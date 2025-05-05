@@ -5,6 +5,7 @@
 #include <AESCustom.h>
 #include <RSACustom.h>
 #include <manager.h>
+#include <HandshakeContext.h>
 
 void testRSA()
 {
@@ -77,6 +78,34 @@ void testAESs()
     testAES("AES-256 CBC", AESKeyLength::AES_256, 32);
 }
 
+void testHandshake()
+{
+    HandshakeContext serverCtx(false);
+    RSAPublicKey serverPubKey = serverCtx.getPublicKey();
+
+    std::cout << "Server:generate RSA\n";
+
+    HandshakeContext clientCtx(true);
+    clientCtx.generateSessionKey();
+
+    std::cout << "Client: generate session AES\n";
+
+    auto encryptedKey = clientCtx.encryptSessionKeyWithServerRSA(serverPubKey);
+
+    std::cout << "Client: encrypt AES\n";
+
+    serverCtx.decryptSessionKeyFromClient(encryptedKey);
+
+    std::cout << "Server: decrypt AES \n";
+
+    const auto& clientKey = clientCtx.getSessionKey();
+    const auto& serverKey = serverCtx.getSessionKey();
+
+    bool keysMatch = (clientKey == serverKey);
+
+    std::cout << "Seesion keys are " << (keysMatch ? "equal" : "different") << "\n";
+}
+
 int32_t main(int32_t argc, char** argv)
 {
     (void)argc;
@@ -90,13 +119,16 @@ int32_t main(int32_t argc, char** argv)
     mng.connect();*/
 
     // RSA
-    testRSA();
+    // testRSA();
 
     // sha
-    testSHA();
+    // testSHA();
 
     // AES
-    testAESs();
+    // testAESs();
+
+    // Handshake
+    testHandshake();
 
     return EXIT_SUCCESS;
 }
