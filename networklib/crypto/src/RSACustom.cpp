@@ -6,7 +6,6 @@ constexpr int32_t KEY_SIZE{2048};
 RSACustom::RSACustom()
 {
     rng.seed(std::chrono::steady_clock::now().time_since_epoch().count());
-    generateKeys();
 }
 
 bmp::cpp_int RSACustom::modPow(const bmp::cpp_int& base, const bmp::cpp_int& exp, const bmp::cpp_int& mod)

@@ -604,6 +604,7 @@ void AESCustom::printHexVector(std::vector<uint8_t> a)
     {
         printf("%02x ", a[i]);
     }
+    std::cout <<std::endl;
 }
 
 std::vector<uint8_t> AESCustom::ArrayToVector(uint8_t* a, uint32_t len)

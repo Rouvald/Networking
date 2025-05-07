@@ -32,7 +32,7 @@ public:
     std::vector<uint8_t> EncryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
     std::vector<uint8_t> DecryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
 
-    void printHexArray(uint8_t a[], uint32_t n);
+    static void printHexArray(uint8_t a[], uint32_t n);
 
     void printHexVector(std::vector<uint8_t> a);
 
