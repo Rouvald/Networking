@@ -1,4 +1,6 @@
 #include "HandshakeContext.h"
+#include "RSAPublicKey.h"
+#include <AESCustom.h>
 
 HandshakeContext::HandshakeContext(bool isClient) : _isClient(isClient), _handshakeComplete(false)
 {
@@ -32,7 +34,7 @@ RSAPublicKey HandshakeContext::getPublicKey() const
 
 void HandshakeContext::generateSessionKey()
 {
-    _sessionKey = AESCustom::generateRandomKey(32);
+    _sessionKey = AESCustom::generateRandomKey(CIPHER_256_KEY_SIZE);
 }
 
 boost::multiprecision::cpp_int HandshakeContext::encryptSessionKeyWithServerRSA(const RSAPublicKey& serverPubKey) const

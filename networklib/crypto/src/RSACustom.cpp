@@ -1,7 +1,7 @@
 #include <RSACustom.h>
 #include <SHA256Custom.h>
 
-constexpr int32_t KEY_SIZE{2048};
+constexpr int32_t KEY_SIZE{4096};
 
 RSACustom::RSACustom()
 {
@@ -124,7 +124,9 @@ bool RSACustom::isPrime(const bmp::cpp_int& n, const int32_t& k)
 
 void RSACustom::generateKeys()
 {
+    #ifdef _DEBUG
     std::cout << "Generating " << KEY_SIZE << "-bit RSACustom key...\n";
+    #endif
     _prime_p = generatePrime(KEY_SIZE / 2);
     _prime_q = generatePrime(KEY_SIZE / 2);
     while (_prime_q == _prime_p)
@@ -137,8 +139,10 @@ void RSACustom::generateKeys()
         _public_exponent_e = 3;
     _private_exponent_d = modInverse(_public_exponent_e, _totient_phi);
 
+    #ifdef _DEBUG
     std::cout << "Public Key (e, n):\n" << _public_exponent_e << "\n" << _moduls_n << "\n";
     std::cout << "Private Key (d, n):\n" << _private_exponent_d << "\n" << _moduls_n << "\n";
+    #endif
 }
 
 std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::string& message, size_t k)
@@ -162,7 +166,7 @@ std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::string& message, size_t 
         padded[2 + i] = val;
     }
     padded[2 + ps_len] = 0x00;
-    std::copy(message.begin(), message.end(), padded.begin() + 3 + ps_len);
+    std::ranges::copy(message, padded.begin() + 3 + ps_len);
     return padded;
 }
 
@@ -186,7 +190,7 @@ bmp::cpp_int RSACustom::encrypt(const std::string& message)
     return modPow(m, _public_exponent_e, _moduls_n);
 }
 
-std::string RSACustom::decrypt(const bmp::cpp_int& cipher)
+std::string RSACustom::decrypt(const bmp::cpp_int& cipher) const
 {
     bmp::cpp_int m = modPow(cipher, _private_exponent_d, _moduls_n);
     std::vector<uint8_t> bytes;
@@ -206,7 +210,7 @@ void RSACustom::encryptFile(const std::string& inputPath, const std::string& out
     outFile << cipher;
 }
 
-void RSACustom::decryptFile(const std::string& inputPath, const std::string& outputPath)
+void RSACustom::decryptFile(const std::string& inputPath, const std::string& outputPath) const
 {
     std::ifstream inFile(inputPath);
     bmp::cpp_int cipher;
@@ -217,46 +221,25 @@ void RSACustom::decryptFile(const std::string& inputPath, const std::string& out
     outFile.write(decrypted.data(), decrypted.size());
 }
 
-bmp::cpp_int RSACustom::sign(const std::string& message)
+bmp::cpp_int RSACustom::sign(const std::string& message) const
 {
     auto hash = sha256(message);
     auto hash_bytes = hexStringToBytes(hash);
-
-    /*std::cout << "[sign] message - " << message << std::endl;
-    std::cout << "[sign] hash - " << hash << std::endl;
-    std::cout << "[sign] hash_bytes - ";
-    for (const auto& val : hash_bytes)
-    {
-        std::cout << ' ' << val;
-    }
-    std::cout << std::endl;*/
 
     bmp::cpp_int hash_int;
     import_bits(hash_int, hash_bytes.begin(), hash_bytes.end(), 8, false);
     return modPow(hash_int, _private_exponent_d, _moduls_n);
 }
 
-bool RSACustom::verify(const std::string& message, const bmp::cpp_int& signature)
+bool RSACustom::verify(const std::string& message, const bmp::cpp_int& signature) const
 {
     auto hash = sha256(message);
     auto hash_bytes = hexStringToBytes(hash);
-
-    /*std::cout << "[verify] message - " << message << std::endl;
-    std::cout << "[verify] hash - " << hash << std::endl;
-    std::cout << "[verify] hash_bytes - ";
-    for (const auto& val : hash_bytes)
-    {
-        std::cout << ' ' << val;
-    }
-    std::cout << std::endl;*/
 
     bmp::cpp_int hash_int;
     import_bits(hash_int, hash_bytes.begin(), hash_bytes.end(), 8, false);
 
     bmp::cpp_int decrypted_sig = modPow(signature, _public_exponent_e, _moduls_n);
-
-    /*std::cout << "[verify] decrypted_sig: " << decrypted_sig << "\n";
-    std::cout << "[verify] expected hash : " << hash_int << "\n";*/
 
     return decrypted_sig == hash_int;
 }

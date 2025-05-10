@@ -10,11 +10,11 @@ class SessionCipher
 public:
     SessionCipher();
     void setKey(const std::vector<uint8_t>& key);
-    void setIV(const std::vector<uint8_t>& iv);
+    void setIV(const std::vector<uint8_t>& ivKey);
     const std::vector<uint8_t>& getIV() const;
 
-    std::vector<uint8_t> encrypt(const std::vector<uint8_t>& data);
-    std::vector<uint8_t> decrypt(const std::vector<uint8_t>& encrypted);
+    std::vector<uint8_t> encrypt(const std::vector<uint8_t>& data) const;
+    std::vector<uint8_t> decrypt(const std::vector<uint8_t>& encrypted) const;
 
 private:
     std::vector<uint8_t> _key;

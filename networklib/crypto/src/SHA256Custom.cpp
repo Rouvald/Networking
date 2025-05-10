@@ -1,9 +1,13 @@
 // Author: https://github.com/kibonga/sha256-cpp
 
 #include <SHA256Custom.h>
-
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <cstring>
+#include <iterator>
 #include <sstream>
+#include <string>
 
 constexpr int32_t a = 0;
 constexpr int32_t b = 1;
@@ -24,32 +28,32 @@ constexpr uint32_t K[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,  //
 };
 
-uint32_t right_rotate(uint32_t x, uint32_t n)
+static uint32_t right_rotate(uint32_t x, uint32_t n)
 {
     return (x >> n) | (x << (32 - n));
 }
 
-uint32_t little_sigma_0(uint32_t x)
+static uint32_t little_sigma_0(uint32_t x)
 {
     return right_rotate(x, 7) ^ right_rotate(x, 18) ^ (x >> 3);
 }
 
-uint32_t little_sigma_1(uint32_t x)
+static uint32_t little_sigma_1(uint32_t x)
 {
     return right_rotate(x, 17) ^ right_rotate(x, 19) ^ (x >> 10);
 }
 
-uint32_t big_sigma_0(uint32_t x)
+static uint32_t big_sigma_0(uint32_t x)
 {
     return right_rotate(x, 2) ^ right_rotate(x, 13) ^ right_rotate(x, 22);
 }
 
-uint32_t big_sigma_1(uint32_t x)
+static uint32_t big_sigma_1(uint32_t x)
 {
     return right_rotate(x, 6) ^ right_rotate(x, 11) ^ right_rotate(x, 25);
 }
 
-void message_schedule(uint32_t (&W)[64], uint8_t (&block)[64])
+static void message_schedule(uint32_t (&W)[64], const uint8_t (&block)[64])
 {
     for (int32_t i = 0; i < 16; i++)
     {
@@ -62,19 +66,19 @@ void message_schedule(uint32_t (&W)[64], uint8_t (&block)[64])
     }
 }
 
-uint32_t choice(uint32_t x, uint32_t y, uint32_t z)
+static uint32_t choice(uint32_t x, uint32_t y, uint32_t z)
 {
     return (x & y) ^ (~x & z);
 }
 
-uint32_t majority(uint32_t x, uint32_t y, uint32_t z)
+static uint32_t majority(uint32_t x, uint32_t y, uint32_t z)
 {
     return (x & y) ^ (x & z) ^ (y & z);
 }
 
-void round(uint32_t (&H)[8], uint32_t round_constant, uint32_t schedule_word)
+static void round(uint32_t (&H)[8], uint32_t round_constant, uint32_t schedule_word)
 {
-    uint32_t T1 = H[h] + big_sigma_1(H[e]) + choice(H[e], H[f], H[g]) + round_constant + schedule_word;
+    uint32_t const T1 = H[h] + big_sigma_1(H[e]) + choice(H[e], H[f], H[g]) + round_constant + schedule_word;
 
     uint32_t T2 = big_sigma_0(H[a]) + majority(H[a], H[b], H[c]);
 
@@ -87,7 +91,7 @@ void round(uint32_t (&H)[8], uint32_t round_constant, uint32_t schedule_word)
     H[e] += T1;
 }
 
-void compress_block(uint32_t (&H)[8], uint8_t (&block)[64])
+void compress_block(uint32_t (&H)[8], const uint8_t (&block)[64])
 {
     uint32_t W[64];
     uint32_t h[8];
@@ -95,18 +99,24 @@ void compress_block(uint32_t (&H)[8], uint8_t (&block)[64])
     message_schedule(W, block);
 
     for (int32_t i = 0; i < 8; i++)
+    {
         h[i] = H[i];
+    }
     for (int32_t i = 0; i < 64; i++)
+    {
         round(h, W[i], K[i]);
+    }
     for (int32_t i = 0; i < 8; i++)
+    {
         H[i] += h[i];
+    }
 }
 
 std::string sha256(std::string m)
 {
     uint32_t H[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
-    int32_t size = m.size();
+    int32_t const size = m.size();
     int32_t l = (size * 8);
     std::vector<uint8_t> message;
 
@@ -123,26 +133,26 @@ std::string sha256(std::string m)
     }
 
     message.reserve(size + k + 1 + 8);
-    copy(m.c_str(), m.c_str() + size, back_inserter(message));
+    copy_n(m.c_str(), size, back_inserter(message));
     message.push_back(128);
     message.insert(message.end(), k, 0);
 
     for (int32_t i = 0; i < 8; ++i)
     {
-        message.push_back(((((uint64_t)l) >> (56 - (8 * i))) & 0xFFu));
+        message.push_back((((static_cast<uint64_t>(l)) >> (56 - (8 * i))) & 0xFFu));
     }
 
-    uint8_t block[64];
     for (int32_t i = 0; i < N; i++)
     {
+        uint8_t block[64];
         memcpy(block, &message[i * 64], 64);
         compress_block(H, block);
     }
 
     std::stringstream ss;
-    for (size_t i = 0; i < 8; ++i)
+    for (unsigned int& i : H)
     {
-        ss << std::hex << std::setw(8) << std::setfill('0') << H[i];
+        ss << std::hex << std::setw(8) << std::setfill('0') << i;
     }
 
     return ss.str();
@@ -154,8 +164,8 @@ std::vector<uint8_t> hexStringToBytes(const std::string& hex)
     bytes.reserve(hex.size() / 2);
     for (size_t i = 0; i < hex.size(); i += 2)
     {
-        std::string byteStr = hex.substr(i, 2);
-        uint8_t byte = static_cast<uint8_t>(std::stoul(byteStr, nullptr, 16));
+        std::string const byteStr = hex.substr(i, 2);
+        auto byte = static_cast<uint8_t>(std::stoul(byteStr, nullptr, 16));
         bytes.push_back(byte);
     }
     return bytes;

@@ -23,11 +23,11 @@ public:
     RSACustom & operator=(RSACustom &&) = default;
 
     bmp::cpp_int encrypt(const std::string& message);
-    std::string decrypt(const bmp::cpp_int& cipher);
+    std::string decrypt(const bmp::cpp_int& cipher) const;
     void encryptFile(const std::string& inputPath, const std::string& outputPath);
-    void decryptFile(const std::string& inputPath, const std::string& outputPath);
-    bmp::cpp_int sign(const std::string& message);
-    bool verify(const std::string& message, const bmp::cpp_int& signature);
+    void decryptFile(const std::string& inputPath, const std::string& outputPath) const;
+    bmp::cpp_int sign(const std::string& message) const;
+    bool verify(const std::string& message, const bmp::cpp_int& signature) const;
 
     void generateKeys();
 

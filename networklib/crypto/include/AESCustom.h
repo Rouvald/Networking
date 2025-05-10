@@ -3,8 +3,13 @@
 #ifndef AES_H_
 #define AES_H_
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
+
+constexpr uint8_t CIPHER_128_KEY_SIZE = 16;
+constexpr uint8_t CIPHER_256_KEY_SIZE = 32;
+constexpr uint8_t CIPHER_IV_SIZE = 16;
 
 enum class AESKeyLength : uint8_t
 {
@@ -18,25 +23,25 @@ class AESCustom
 public:
     explicit AESCustom(const AESKeyLength& keyLength = AESKeyLength::AES_256);
 
-    uint8_t* EncryptECB(const uint8_t in[], uint32_t inLen, const uint8_t key[]);
-    uint8_t* DecryptECB(const uint8_t in[], uint32_t inLen, const uint8_t key[]);
-    uint8_t* EncryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv);
-    uint8_t* DecryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv);
-    uint8_t* EncryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv);
-    uint8_t* DecryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv);
+    uint8_t* EncryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[]);
+    uint8_t* DecryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[]);
+    uint8_t* EncryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey);
+    uint8_t* DecryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey);
+    uint8_t* EncryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey);
+    uint8_t* DecryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey);
 
-    std::vector<uint8_t> EncryptECB(std::vector<uint8_t> in, std::vector<uint8_t> key);
-    std::vector<uint8_t> DecryptECB(std::vector<uint8_t> in, std::vector<uint8_t> key);
-    std::vector<uint8_t> EncryptCBC(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
-    std::vector<uint8_t> DecryptCBC(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
-    std::vector<uint8_t> EncryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
-    std::vector<uint8_t> DecryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv);
+    std::vector<uint8_t> EncryptECB(std::vector<uint8_t> inData, std::vector<uint8_t> key);
+    std::vector<uint8_t> DecryptECB(std::vector<uint8_t> inData, std::vector<uint8_t> key);
+    std::vector<uint8_t> EncryptCBC(const std::vector<uint8_t>& inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey);
+    std::vector<uint8_t> DecryptCBC(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey);
+    std::vector<uint8_t> EncryptCFB(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey);
+    std::vector<uint8_t> DecryptCFB(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey);
 
-    static void printHexArray(uint8_t a[], uint32_t n);
+    static void printHexArray(uint8_t arrData[], uint32_t arrSize);
 
-    void printHexVector(std::vector<uint8_t> a);
+    static void printHexVector(std::vector<uint8_t> a);
 
-    static std::vector<uint8_t> generateRandomIV(size_t length = 16);
+    static std::vector<uint8_t> generateRandomIV(size_t length = CIPHER_IV_SIZE);
     static std::vector<uint8_t> generateRandomKey(size_t length);
 
 private:
@@ -46,46 +51,46 @@ private:
     uint32_t Nk;
     uint32_t Nr;
 
-    void SubBytes(uint8_t state[4][Nb]);
+    static void SubBytes(uint8_t state[4][Nb]);
 
     void ShiftRow(uint8_t state[4][Nb], uint32_t i,
         uint32_t n);  // shift row i on n positions
 
     void ShiftRows(uint8_t state[4][Nb]);
 
-    uint8_t xtime(uint8_t b);  // multiply on x
+    static uint8_t xtime(uint8_t b);  // multiply on static x
 
     void MixColumns(uint8_t state[4][Nb]);
 
-    void AddRoundKey(uint8_t state[4][Nb], uint8_t* key);
+    static void AddRoundKey(uint8_t state[4][Nb], uint8_t* key);
 
-    void SubWord(uint8_t* a);
+    static void SubWord(uint8_t* data);
 
-    void RotWord(uint8_t* a);
+    static void RotWord(uint8_t* data);
 
-    void XorWords(uint8_t* a, uint8_t* b, uint8_t* c);
+    static void XorWords(uint8_t* dataFirst, uint8_t* dataSecond, uint8_t* dataThird);
 
-    void Rcon(uint8_t* a, uint32_t n);
+    static void Rcon(uint8_t* data, uint32_t size);
 
-    void InvSubBytes(uint8_t state[4][Nb]);
+    static void InvSubBytes(uint8_t state[4][Nb]);
 
-    void InvMixColumns(uint8_t state[4][Nb]);
+    static void InvMixColumns(uint8_t state[4][Nb]);
 
     void InvShiftRows(uint8_t state[4][Nb]);
 
     void CheckLength(uint32_t len);
 
-    void KeyExpansion(const uint8_t key[], uint8_t w[]);
+    void KeyExpansion(const uint8_t key[], uint8_t w[]) const;
 
-    void EncryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKeys);
+    void EncryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys);
 
-    void DecryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKeys);
+    void DecryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys);
 
-    void XorBlocks(const uint8_t* a, const uint8_t* b, uint8_t* c, uint32_t len);
+    static void XorBlocks(const uint8_t* dataFirst, const uint8_t* dataSecond, uint8_t* dataThird, uint32_t len);
 
-    std::vector<uint8_t> ArrayToVector(uint8_t* a, uint32_t len);
+    static std::vector<uint8_t> ArrayToVector(uint8_t* arr, uint32_t size);
 
-    uint8_t* VectorToArray(std::vector<uint8_t>& a);
+    static uint8_t* VectorToArray(std::vector<uint8_t>& vec);
 
     std::vector<uint8_t> PKCS7Pad(const std::vector<uint8_t>& data);
     std::vector<uint8_t> PKCS7Unpad(const std::vector<uint8_t>& data);

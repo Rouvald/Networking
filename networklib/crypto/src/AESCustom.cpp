@@ -3,6 +3,7 @@
 #include "AESCustom.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -149,7 +150,7 @@ static const uint8_t GF_MUL_TABLE[15][256] = {
 };
 
 /// circulant MDS matrix
-static const uint8_t CMDS[4][4] = {
+static constexpr uint8_t CMDS[4][4] = {
     {2, 3, 1, 1},
     {1, 2, 3, 1},
     {1, 1, 2, 3},
@@ -157,7 +158,7 @@ static const uint8_t CMDS[4][4] = {
 };
 
 /// Inverse circulant MDS matrix
-static const uint8_t INV_CMDS[4][4] = {
+static constexpr uint8_t INV_CMDS[4][4] = {
     {14, 11, 13, 9 },
     {9,  14, 11, 13},
     {13, 9,  14, 11},
@@ -183,7 +184,7 @@ AESCustom::AESCustom(const AESKeyLength& keyLength)
     }
 }
 
-uint8_t* AESCustom::EncryptECB(const uint8_t in[], uint32_t inLen, const uint8_t key[])
+uint8_t* AESCustom::EncryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[])
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
@@ -191,7 +192,7 @@ uint8_t* AESCustom::EncryptECB(const uint8_t in[], uint32_t inLen, const uint8_t
     KeyExpansion(key, roundKeys);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
-        EncryptBlock(in + i, out + i, roundKeys);
+        EncryptBlock(inData + i, out + i, roundKeys);
     }
 
     delete[] roundKeys;
@@ -199,7 +200,7 @@ uint8_t* AESCustom::EncryptECB(const uint8_t in[], uint32_t inLen, const uint8_t
     return out;
 }
 
-uint8_t* AESCustom::DecryptECB(const uint8_t in[], uint32_t inLen, const uint8_t key[])
+uint8_t* AESCustom::DecryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[])
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
@@ -207,7 +208,7 @@ uint8_t* AESCustom::DecryptECB(const uint8_t in[], uint32_t inLen, const uint8_t
     KeyExpansion(key, roundKeys);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
-        DecryptBlock(in + i, out + i, roundKeys);
+        DecryptBlock(inData + i, out + i, roundKeys);
     }
 
     delete[] roundKeys;
@@ -215,17 +216,17 @@ uint8_t* AESCustom::DecryptECB(const uint8_t in[], uint32_t inLen, const uint8_t
     return out;
 }
 
-uint8_t* AESCustom::EncryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv)
+uint8_t* AESCustom::EncryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
     uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
-    memcpy(block, iv, blockBytesLen);
+    memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
-        XorBlocks(block, in + i, block, blockBytesLen);
+        XorBlocks(block, inData + i, block, blockBytesLen);
         EncryptBlock(block, out + i, roundKeys);
         memcpy(block, out + i, blockBytesLen);
     }
@@ -235,19 +236,19 @@ uint8_t* AESCustom::EncryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t
     return out;
 }
 
-uint8_t* AESCustom::DecryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv)
+uint8_t* AESCustom::DecryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
     uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
-    memcpy(block, iv, blockBytesLen);
+    memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
-        DecryptBlock(in + i, out + i, roundKeys);
+        DecryptBlock(inData + i, out + i, roundKeys);
         XorBlocks(block, out + i, out + i, blockBytesLen);
-        memcpy(block, in + i, blockBytesLen);
+        memcpy(block, inData + i, blockBytesLen);
     }
 
     delete[] roundKeys;
@@ -255,7 +256,7 @@ uint8_t* AESCustom::DecryptCBC(const uint8_t in[], uint32_t inLen, const uint8_t
     return out;
 }
 
-uint8_t* AESCustom::EncryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv)
+uint8_t* AESCustom::EncryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
@@ -263,11 +264,11 @@ uint8_t* AESCustom::EncryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t
     uint8_t encryptedBlock[blockBytesLen];
     uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
-    memcpy(block, iv, blockBytesLen);
+    memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
         EncryptBlock(block, encryptedBlock, roundKeys);
-        XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
+        XorBlocks(inData + i, encryptedBlock, out + i, blockBytesLen);
         memcpy(block, out + i, blockBytesLen);
     }
 
@@ -276,20 +277,20 @@ uint8_t* AESCustom::EncryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t
     return out;
 }
 
-uint8_t* AESCustom::DecryptCFB(const uint8_t in[], uint32_t inLen, const uint8_t key[], const uint8_t* iv)
+uint8_t* AESCustom::DecryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
     uint8_t* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
-    uint8_t encryptedBlock[blockBytesLen];
     uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
-    memcpy(block, iv, blockBytesLen);
+    memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
+        uint8_t encryptedBlock[blockBytesLen];
         EncryptBlock(block, encryptedBlock, roundKeys);
-        XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
-        memcpy(block, in + i, blockBytesLen);
+        XorBlocks(inData + i, encryptedBlock, out + i, blockBytesLen);
+        memcpy(block, inData + i, blockBytesLen);
     }
 
     delete[] roundKeys;
@@ -305,22 +306,22 @@ void AESCustom::CheckLength(uint32_t len)
     }
 }
 
-void AESCustom::EncryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKeys)
+void AESCustom::EncryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys)
 {
     uint8_t state[4][Nb];
-    uint32_t i, j, round;
+    uint32_t i, j;
 
     for (i = 0; i < 4; i++)
     {
         for (j = 0; j < Nb; j++)
         {
-            state[i][j] = in[i + 4 * j];
+            state[i][j] = inData[i + 4 * j];
         }
     }
 
     AddRoundKey(state, roundKeys);
 
-    for (round = 1; round <= Nr - 1; round++)
+    for (uint32_t round = 1; round <= Nr - 1; round++)
     {
         SubBytes(state);
         ShiftRows(state);
@@ -336,27 +337,27 @@ void AESCustom::EncryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKe
     {
         for (j = 0; j < Nb; j++)
         {
-            out[i + 4 * j] = state[i][j];
+            outData[i + 4 * j] = state[i][j];
         }
     }
 }
 
-void AESCustom::DecryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKeys)
+void AESCustom::DecryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys)
 {
     uint8_t state[4][Nb];
-    uint32_t i, j, round;
+    uint32_t i, j;
 
     for (i = 0; i < 4; i++)
     {
         for (j = 0; j < Nb; j++)
         {
-            state[i][j] = in[i + 4 * j];
+            state[i][j] = inData[i + 4 * j];
         }
     }
 
     AddRoundKey(state, roundKeys + Nr * 4 * Nb);
 
-    for (round = Nr - 1; round >= 1; round--)
+    for (uint32_t round = Nr - 1; round >= 1; round--)
     {
         InvSubBytes(state);
         InvShiftRows(state);
@@ -372,7 +373,7 @@ void AESCustom::DecryptBlock(const uint8_t in[], uint8_t out[], uint8_t* roundKe
     {
         for (j = 0; j < Nb; j++)
         {
-            out[i + 4 * j] = state[i][j];
+            outData[i + 4 * j] = state[i][j];
         }
     }
 }
@@ -455,50 +456,49 @@ void AESCustom::AddRoundKey(uint8_t state[4][Nb], uint8_t* key)
     }
 }
 
-void AESCustom::SubWord(uint8_t* a)
+void AESCustom::SubWord(uint8_t* data)
 {
     int i;
     for (i = 0; i < 4; i++)
     {
-        a[i] = sbox[a[i] / 16][a[i] % 16];
+        data[i] = sbox[data[i] / 16][data[i] % 16];
     }
 }
 
-void AESCustom::RotWord(uint8_t* a)
+void AESCustom::RotWord(uint8_t* data)
 {
-    uint8_t c = a[0];
-    a[0] = a[1];
-    a[1] = a[2];
-    a[2] = a[3];
-    a[3] = c;
+    uint8_t c = data[0];
+    data[0] = data[1];
+    data[1] = data[2];
+    data[2] = data[3];
+    data[3] = c;
 }
 
-void AESCustom::XorWords(uint8_t* a, uint8_t* b, uint8_t* c)
+void AESCustom::XorWords(uint8_t* dataFirst, uint8_t* dataSecond, uint8_t* dataThird)
 {
     int i;
     for (i = 0; i < 4; i++)
     {
-        c[i] = a[i] ^ b[i];
+        dataThird[i] = dataFirst[i] ^ dataSecond[i];
     }
 }
 
-void AESCustom::Rcon(uint8_t* a, uint32_t n)
+void AESCustom::Rcon(uint8_t* data, uint32_t size)
 {
     uint32_t i;
     uint8_t c = 1;
-    for (i = 0; i < n - 1; i++)
+    for (i = 0; i < size - 1; i++)
     {
         c = xtime(c);
     }
 
-    a[0] = c;
-    a[1] = a[2] = a[3] = 0;
+    data[0] = c;
+    data[1] = data[2] = data[3] = 0;
 }
 
-void AESCustom::KeyExpansion(const uint8_t key[], uint8_t w[])
+void AESCustom::KeyExpansion(const uint8_t key[], uint8_t w[]) const
 {
     uint8_t temp[4];
-    uint8_t rcon[4];
 
     uint32_t i = 0;
     while (i < 4 * Nk)
@@ -517,6 +517,7 @@ void AESCustom::KeyExpansion(const uint8_t key[], uint8_t w[])
 
         if (i / 4 % Nk == 0)
         {
+            uint8_t rcon[4];
             RotWord(temp);
             SubWord(temp);
             Rcon(rcon, i / (Nk * 4));
@@ -537,7 +538,8 @@ void AESCustom::KeyExpansion(const uint8_t key[], uint8_t w[])
 
 void AESCustom::InvSubBytes(uint8_t state[4][Nb])
 {
-    uint32_t i, j;
+    uint32_t i;
+    uint32_t j;
     uint8_t t;
     for (i = 0; i < 4; i++)
     {
@@ -553,9 +555,9 @@ void AESCustom::InvMixColumns(uint8_t state[4][Nb])
 {
     uint8_t temp_state[4][Nb];
 
-    for (size_t i = 0; i < 4; ++i)
+    for (auto & i : temp_state)
     {
-        memset(temp_state[i], 0, 4);
+        memset(i, 0, 4);
     }
 
     for (size_t i = 0; i < 4; ++i)
@@ -582,46 +584,46 @@ void AESCustom::InvShiftRows(uint8_t state[4][Nb])
     ShiftRow(state, 3, Nb - 3);
 }
 
-void AESCustom::XorBlocks(const uint8_t* a, const uint8_t* b, uint8_t* c, uint32_t len)
+void AESCustom::XorBlocks(const uint8_t* dataFirst, const uint8_t* dataSecond, uint8_t* dataThird, uint32_t len)
 {
     for (uint32_t i = 0; i < len; i++)
     {
-        c[i] = a[i] ^ b[i];
+        dataThird[i] = dataFirst[i] ^ dataSecond[i];
     }
 }
 
-void AESCustom::printHexArray(uint8_t a[], uint32_t n)
+void AESCustom::printHexArray(uint8_t arrData[], uint32_t arrSize)
 {
-    for (uint32_t i = 0; i < n; i++)
+    for (uint32_t i = 0; i < arrSize; i++)
     {
-        printf("%02x ", a[i]);
+        printf("%02x ", arrData[i]);
     }
 }
 
 void AESCustom::printHexVector(std::vector<uint8_t> a)
 {
-    for (uint32_t i = 0; i < a.size(); i++)
+    for (unsigned char i : a)
     {
-        printf("%02x ", a[i]);
+        printf("%02x ", i);
     }
-    std::cout <<std::endl;
+    std::cout <<'\n';
 }
 
-std::vector<uint8_t> AESCustom::ArrayToVector(uint8_t* a, uint32_t len)
+std::vector<uint8_t> AESCustom::ArrayToVector(uint8_t* arr, uint32_t size)
 {
-    std::vector<uint8_t> v(a, a + len * sizeof(uint8_t));
+    std::vector<uint8_t> v(arr, arr + size * sizeof(uint8_t));
     return v;
 }
 
-uint8_t* AESCustom::VectorToArray(std::vector<uint8_t>& a)
+uint8_t* AESCustom::VectorToArray(std::vector<uint8_t>& vec)
 {
-    return a.data();
+    return vec.data();
 }
 
-std::vector<uint8_t> AESCustom::EncryptECB(std::vector<uint8_t> in, std::vector<uint8_t> key)
+std::vector<uint8_t> AESCustom::EncryptECB(std::vector<uint8_t> inData, std::vector<uint8_t> key)
 {
-    uint8_t* out = EncryptECB(VectorToArray(in), static_cast<uint32_t>(in.size()), VectorToArray(key));
-    std::vector<uint8_t> v = ArrayToVector(out, in.size());
+    uint8_t* out = EncryptECB(VectorToArray(inData), static_cast<uint32_t>(inData.size()), VectorToArray(key));
+    std::vector<uint8_t> v = ArrayToVector(out, inData.size());
     delete[] out;
     return v;
 }
@@ -634,35 +636,35 @@ std::vector<uint8_t> AESCustom::DecryptECB(std::vector<uint8_t> in, std::vector<
     return v;
 }
 
-std::vector<uint8_t> AESCustom::EncryptCBC(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv)
+std::vector<uint8_t> AESCustom::EncryptCBC(const std::vector<uint8_t>& inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey)
 {
-    auto padded = PKCS7Pad(in);
-    uint8_t* out = EncryptCBC(VectorToArray(padded), static_cast<uint32_t>(padded.size()), VectorToArray(key), VectorToArray(iv));
+    auto padded = PKCS7Pad(inData);
+    uint8_t* out = EncryptCBC(VectorToArray(padded), static_cast<uint32_t>(padded.size()), VectorToArray(key), VectorToArray(ivKey));
     std::vector<uint8_t> v = ArrayToVector(out, padded.size());
     delete[] out;
     return v;
 }
 
-std::vector<uint8_t> AESCustom::DecryptCBC(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv)
+std::vector<uint8_t> AESCustom::DecryptCBC(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey)
 {
-    uint8_t* out = DecryptCBC(VectorToArray(in), static_cast<uint32_t>(in.size()), VectorToArray(key), VectorToArray(iv));
-    std::vector<uint8_t> padded = ArrayToVector(out, static_cast<uint32_t>(in.size()));
+    uint8_t* out = DecryptCBC(VectorToArray(inData), static_cast<uint32_t>(inData.size()), VectorToArray(key), VectorToArray(ivKey));
+    std::vector<uint8_t> const padded = ArrayToVector(out, static_cast<uint32_t>(inData.size()));
     delete[] out;
     return PKCS7Unpad(padded);
 }
 
-std::vector<uint8_t> AESCustom::EncryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv)
+std::vector<uint8_t> AESCustom::EncryptCFB(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey)
 {
-    uint8_t* out = EncryptCFB(VectorToArray(in), static_cast<uint32_t>(in.size()), VectorToArray(key), VectorToArray(iv));
-    std::vector<uint8_t> v = ArrayToVector(out, in.size());
+    uint8_t* out = EncryptCFB(VectorToArray(inData), static_cast<uint32_t>(inData.size()), VectorToArray(key), VectorToArray(ivKey));
+    std::vector<uint8_t> v = ArrayToVector(out, inData.size());
     delete[] out;
     return v;
 }
 
-std::vector<uint8_t> AESCustom::DecryptCFB(std::vector<uint8_t> in, std::vector<uint8_t> key, std::vector<uint8_t> iv)
+std::vector<uint8_t> AESCustom::DecryptCFB(std::vector<uint8_t> inData, std::vector<uint8_t> key, std::vector<uint8_t> ivKey)
 {
-    uint8_t* out = DecryptCFB(VectorToArray(in), static_cast<uint32_t>(in.size()), VectorToArray(key), VectorToArray(iv));
-    std::vector<uint8_t> v = ArrayToVector(out, static_cast<uint32_t>(in.size()));
+    uint8_t* out = DecryptCFB(VectorToArray(inData), static_cast<uint32_t>(inData.size()), VectorToArray(key), VectorToArray(ivKey));
+    std::vector<uint8_t> v = ArrayToVector(out, static_cast<uint32_t>(inData.size()));
     delete[] out;
     return v;
 }
