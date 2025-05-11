@@ -1,11 +1,9 @@
 #include <RSACustom.h>
 #include <SHA256Custom.h>
 
-constexpr int32_t KEY_SIZE{4096};
-
 RSACustom::RSACustom()
 {
-    rng.seed(std::chrono::steady_clock::now().time_since_epoch().count());
+    _rng.seed(std::chrono::steady_clock::now().time_since_epoch().count());
 }
 
 bmp::cpp_int RSACustom::modPow(const bmp::cpp_int& base, const bmp::cpp_int& exp, const bmp::cpp_int& mod)
@@ -46,7 +44,8 @@ bmp::cpp_int RSACustom::modInverse(const bmp::cpp_int& val, const bmp::cpp_int& 
     bmp::cpp_int m0 = modIn;
     bmp::cpp_int t;
     bmp::cpp_int q;
-    bmp::cpp_int x0 = 0, x1 = 1;
+    bmp::cpp_int x0 = 0;
+    bmp::cpp_int x1 = 1;
     while (valIn > 1)
     {
         q = valIn / modIn;
@@ -66,6 +65,11 @@ bmp::cpp_int RSACustom::modInverse(const bmp::cpp_int& val, const bmp::cpp_int& 
 
 bmp::cpp_int RSACustom::generatePrime(const int32_t& bits)
 {
+    return generatePrime(bits, _rng);
+}
+
+bmp::cpp_int RSACustom::generatePrime(const int32_t& bits, std::mt19937& rng)
+{
     std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
     while (true)
     {
@@ -77,21 +81,35 @@ bmp::cpp_int RSACustom::generatePrime(const int32_t& bits)
         }
         candidate |= bmp::cpp_int(1);  // make odd
         candidate |= bmp::cpp_int(1) << (bits - 1);  // ensure MSB is 1
-        if (isPrime(candidate))
+        if (isPrime(candidate, 10, rng))
+        {
             return candidate;
+        }
     }
 }
 
 bool RSACustom::isPrime(const bmp::cpp_int& n, const int32_t& k)
 {
-    if (n < 2)
-        return false;
-    if (n == 2 || n == 3)
-        return true;
-    if (n % 2 == 0)
-        return false;
+    return isPrime(n, k, _rng);
+}
 
-    bmp::cpp_int s = 0, d = n - 1;
+bool RSACustom::isPrime(const bmp::cpp_int& n, const int32_t& k, std::mt19937& rng)
+{
+    if (n < 2)
+    {
+        return false;
+    }
+    if (n == 2 || n == 3)
+    {
+        return true;
+    }
+    if (n % 2 == 0)
+    {
+        return false;
+    }
+
+    bmp::cpp_int s = 0;
+    bmp::cpp_int d = n - 1;
     while (d % 2 == 0)
     {
         d /= 2;
@@ -104,7 +122,9 @@ bool RSACustom::isPrime(const bmp::cpp_int& n, const int32_t& k)
         bmp::cpp_int a = dist(rng);
         bmp::cpp_int x = modPow(a, d, n);
         if (x == 1 || x == n - 1)
+        {
             continue;
+        }
         bool cont = false;
         for (bmp::cpp_int r = 1; r < s; ++r)
         {
@@ -116,48 +136,69 @@ bool RSACustom::isPrime(const bmp::cpp_int& n, const int32_t& k)
             }
         }
         if (cont)
+        {
             continue;
+        }
         return false;
     }
     return true;
 }
 
-void RSACustom::generateKeys()
+void RSACustom::generateKeys(const uint32_t& keySize)
 {
-    #ifdef _DEBUG
+#ifdef _DEBUG
     std::cout << "Generating " << KEY_SIZE << "-bit RSACustom key...\n";
-    #endif
-    _prime_p = generatePrime(KEY_SIZE / 2);
-    _prime_q = generatePrime(KEY_SIZE / 2);
+#endif
+    _keySize = keySize;
+    _prime_p = generatePrime(_keySize / 2);
+    _prime_q = generatePrime(_keySize / 2);
     while (_prime_q == _prime_p)
-        _prime_q = generatePrime(KEY_SIZE / 2);
+    {
+        _prime_q = generatePrime(_keySize / 2);
+    }
 
     _moduls_n = _prime_p * _prime_q;
     _totient_phi = (_prime_p - 1) * (_prime_q - 1);
     _public_exponent_e = 65537;
     if (gcd(_public_exponent_e, _totient_phi) != 1)
+    {
         _public_exponent_e = 3;
+    }
     _private_exponent_d = modInverse(_public_exponent_e, _totient_phi);
 
-    #ifdef _DEBUG
-    std::cout << "Public Key (e, n):\n" << _public_exponent_e << "\n" << _moduls_n << "\n";
-    std::cout << "Private Key (d, n):\n" << _private_exponent_d << "\n" << _moduls_n << "\n";
-    #endif
+#ifdef _DEBUG
+    std::cout << "[generateKeys] Public Key (e, n):\n" << _public_exponent_e << "\n" << _moduls_n << "\n";
+    std::cout << "[generateKeys] Private Key (d, n):\n" << _private_exponent_d << "\n" << _moduls_n << "\n";
+#endif
 }
 
-std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::string& message, size_t k)
+std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::string& message, const size_t& msgSize)
 {
-    if (message.size() > k - 11)
+    const std::vector<uint8_t> data{message.begin(), message.end()};
+    return pkcs1v15_pad(data, msgSize, _rng);
+}
+
+std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::vector<uint8_t>& data, const size_t& msgSize)
+{
+    return pkcs1v15_pad(data, msgSize, _rng);
+}
+
+std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::vector<uint8_t>& data, const size_t& msgSize, std::mt19937& rng)
+{
+    constexpr uint8_t minPadSize{11};
+    if (data.size() > msgSize - minPadSize)
+    {
         throw std::runtime_error("Message too long");
-    std::vector<uint8_t> padded(k);
+    }
+    std::vector<uint8_t> padded(msgSize);
     padded[0] = 0x00;
     padded[1] = 0x02;
 
     std::uniform_int_distribution<uint8_t> dist(1, 255);
-    size_t ps_len = k - message.size() - 3;
+    size_t ps_len = msgSize - data.size() - 3;
     for (size_t i = 0; i < ps_len; ++i)
     {
-        uint8_t val;
+        uint8_t val = 0;
         do
         {
             val = dist(rng);
@@ -166,78 +207,131 @@ std::vector<uint8_t> RSACustom::pkcs1v15_pad(const std::string& message, size_t 
         padded[2 + i] = val;
     }
     padded[2 + ps_len] = 0x00;
-    std::ranges::copy(message, padded.begin() + 3 + ps_len);
+    std::copy(data.begin(), data.end(), padded.begin() + 3 + ps_len);
     return padded;
 }
 
-std::string RSACustom::unpad(const std::vector<uint8_t>& padded)
+std::vector<uint8_t> RSACustom::unpad(const std::vector<uint8_t>& padded)
 {
-    if (padded[0] != 0x00 || padded[1] != 0x02)
+    constexpr uint8_t minPadSize{11};
+    if (padded.size() < minPadSize || padded[0] != 0x00 || padded[1] != 0x02)
+    {
         throw std::runtime_error("Invalid padding");
-    size_t i = 2;
-    while (i < padded.size() && padded[i] != 0x00)
-        ++i;
-    if (i == padded.size())
+    }
+    size_t index = 2;
+    while (index < padded.size() && padded[index] != 0x00)
+    {
+        ++index;
+    }
+    if (index >= padded.size() - 1)
+    {
         throw std::runtime_error("No zero separator in padding");
-    return std::string(padded.begin() + i + 1, padded.end());
+    }
+    return std::vector<uint8_t>(padded.begin() + index + 1, padded.end());
 }
 
 bmp::cpp_int RSACustom::encrypt(const std::string& message)
 {
-    auto padded = pkcs1v15_pad(message, KEY_SIZE / 8);
-    bmp::cpp_int m;
-    import_bits(m, padded.begin(), padded.end(), 8, false);
-    return modPow(m, _public_exponent_e, _moduls_n);
+    const std::vector<uint8_t> data{message.begin(), message.end()};
+    return encrypt(data);
 }
 
-std::string RSACustom::decrypt(const bmp::cpp_int& cipher) const
+bmp::cpp_int RSACustom::encrypt(const std::vector<uint8_t>& data)
 {
+    const RSAPublicKey pubKey{_public_exponent_e, _moduls_n};
+    return encrypt(data, pubKey);
+}
+
+boost::multiprecision::cpp_int RSACustom::encrypt(const std::vector<uint8_t>& data, const RSAPublicKey& publicKey)
+{
+    // @tofo: create temp random, REWORK
+    std::mt19937 rng(std::random_device{}());
+    const size_t modulusByteLen = msb(publicKey._modulus) / 8 + 1;
+    auto padded = pkcs1v15_pad(data, modulusByteLen, rng);
+    bmp::cpp_int m;
+    import_bits(m, padded.begin(), padded.end(), 8, false);
+
+#ifdef _DEBUG
+    std::cout << "[encrypt] Public Key (e, n):\n" << publicKey._exponent << "\n" << publicKey._modulus << std::endl;
+#endif
+
+    return modPow(m, publicKey._exponent, publicKey._modulus);
+}
+
+std::vector<uint8_t> RSACustom::decrypt(const bmp::cpp_int& cipher) const
+{
+#ifdef _DEBUG
+    std::cout << "[decrypt] Private Key (d, n):\n" << _private_exponent_d << "\n" << _moduls_n << std::endl;
+#endif
     bmp::cpp_int m = modPow(cipher, _private_exponent_d, _moduls_n);
     std::vector<uint8_t> bytes;
     export_bits(m, std::back_inserter(bytes), 8, false);
     return unpad(bytes);
 }
 
+// @todo: test
 void RSACustom::encryptFile(const std::string& inputPath, const std::string& outputPath)
 {
     std::ifstream inFile(inputPath, std::ios::binary);
-    std::ostringstream ss;
-    ss << inFile.rdbuf();
-    std::string data = ss.str();
+    if (!inFile)
+    {
+        throw std::runtime_error("Failed to open input file: " + inputPath);
+    }
+
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
 
     bmp::cpp_int cipher = encrypt(data);
-    std::ofstream outFile(outputPath);
-    outFile << cipher;
+
+    // Сохранить cpp_int как байты
+    std::vector<uint8_t> cipherBytes;
+    export_bits(cipher, std::back_inserter(cipherBytes), 8);
+
+    std::ofstream outFile(outputPath, std::ios::binary);
+    if (!outFile)
+    {
+        throw std::runtime_error("Failed to open output file: " + outputPath);
+    }
+
+    outFile.write(reinterpret_cast<const char*>(cipherBytes.data()), cipherBytes.size());
 }
 
+// @todo: test
 void RSACustom::decryptFile(const std::string& inputPath, const std::string& outputPath) const
 {
-    std::ifstream inFile(inputPath);
-    bmp::cpp_int cipher;
-    inFile >> cipher;
+    std::ifstream inFile(inputPath, std::ios::binary);
+    if (!inFile)
+    {
+        throw std::runtime_error("Failed to open input file: " + inputPath);
+    }
 
-    std::string decrypted = decrypt(cipher);
+    std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+
+    bmp::cpp_int cipher;
+    import_bits(cipher, buffer.begin(), buffer.end(), 8);
+
+    std::vector<uint8_t> decrypted = decrypt(cipher);
+
     std::ofstream outFile(outputPath, std::ios::binary);
-    outFile.write(decrypted.data(), decrypted.size());
+    if (!outFile)
+    {
+        throw std::runtime_error("Failed to open output file: " + outputPath);
+    }
+    outFile.write(reinterpret_cast<const char*>(decrypted.data()), decrypted.size());
 }
 
-bmp::cpp_int RSACustom::sign(const std::string& message) const
+bmp::cpp_int RSACustom::sign(const std::vector<uint8_t>& data) const
 {
-    auto hash = sha256(message);
-    auto hash_bytes = hexStringToBytes(hash);
-
+    auto hash = sha256(data);
     bmp::cpp_int hash_int;
-    import_bits(hash_int, hash_bytes.begin(), hash_bytes.end(), 8, false);
+    import_bits(hash_int, hash.begin(), hash.end(), 8, false);
     return modPow(hash_int, _private_exponent_d, _moduls_n);
 }
 
-bool RSACustom::verify(const std::string& message, const bmp::cpp_int& signature) const
+bool RSACustom::verify(const std::vector<uint8_t>& data, const bmp::cpp_int& signature) const
 {
-    auto hash = sha256(message);
-    auto hash_bytes = hexStringToBytes(hash);
-
+    auto hash = sha256(data);
     bmp::cpp_int hash_int;
-    import_bits(hash_int, hash_bytes.begin(), hash_bytes.end(), 8, false);
+    import_bits(hash_int, hash.begin(), hash.end(), 8, false);
 
     bmp::cpp_int decrypted_sig = modPow(signature, _public_exponent_e, _moduls_n);
 
@@ -251,6 +345,6 @@ RSAPublicKey RSACustom::getPublicKey() const
 
 void RSACustom::loadPublicKey(const RSAPublicKey& publicKey)
 {
-    _public_exponent_e = publicKey.exponent;
-    _moduls_n = publicKey.modulus;
+    _public_exponent_e = publicKey._exponent;
+    _moduls_n = publicKey._modulus;
 }

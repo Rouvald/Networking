@@ -15,7 +15,7 @@ public:
     void generateSessionKey();
     boost::multiprecision::cpp_int encryptSessionKeyWithServerRSA(const RSAPublicKey& serverPubKey) const;
 
-    void generateRSAKeyPair();
+    void generateRSAKeyPair(const uint32_t& keySize);
     RSAPublicKey getPublicKey() const;
     void decryptSessionKeyFromClient(const bmp::cpp_int& encryptedKey);
 

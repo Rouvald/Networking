@@ -53,14 +53,14 @@ private:
 
     static void SubBytes(uint8_t state[4][Nb]);
 
-    void ShiftRow(uint8_t state[4][Nb], uint32_t i,
+    static void ShiftRow(uint8_t state[4][Nb], uint32_t i,
         uint32_t n);  // shift row i on n positions
 
     void ShiftRows(uint8_t state[4][Nb]);
 
     static uint8_t xtime(uint8_t b);  // multiply on static x
 
-    void MixColumns(uint8_t state[4][Nb]);
+    static void MixColumns(uint8_t state[4][Nb]);
 
     static void AddRoundKey(uint8_t state[4][Nb], uint8_t* key);
 
@@ -68,7 +68,7 @@ private:
 
     static void RotWord(uint8_t* data);
 
-    static void XorWords(uint8_t* dataFirst, uint8_t* dataSecond, uint8_t* dataThird);
+    static void XorWords(const uint8_t* dataFirst, const uint8_t* dataSecond, uint8_t* dataThird);
 
     static void Rcon(uint8_t* data, uint32_t size);
 
@@ -78,7 +78,7 @@ private:
 
     void InvShiftRows(uint8_t state[4][Nb]);
 
-    void CheckLength(uint32_t len);
+    static void CheckLength(uint32_t len);
 
     void KeyExpansion(const uint8_t key[], uint8_t w[]) const;
 
@@ -92,8 +92,8 @@ private:
 
     static uint8_t* VectorToArray(std::vector<uint8_t>& vec);
 
-    std::vector<uint8_t> PKCS7Pad(const std::vector<uint8_t>& data);
-    std::vector<uint8_t> PKCS7Unpad(const std::vector<uint8_t>& data);
+    static std::vector<uint8_t> PKCS7Pad(const std::vector<uint8_t>& data);
+    static std::vector<uint8_t> PKCS7Unpad(const std::vector<uint8_t>& data);
 };
 
 #endif

@@ -187,8 +187,8 @@ AESCustom::AESCustom(const AESKeyLength& keyLength)
 uint8_t* AESCustom::EncryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[])
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
-    uint8_t* roundKeys = new uint8_t[static_cast<uint64_t>(4 * Nb * (Nr + 1))];
+    auto* out = new uint8_t[inLen];
+    auto* roundKeys = new uint8_t[static_cast<uint64_t>(4 * Nb * (Nr + 1))];
     KeyExpansion(key, roundKeys);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
@@ -203,8 +203,8 @@ uint8_t* AESCustom::EncryptECB(const uint8_t inData[], uint32_t inLen, const uin
 uint8_t* AESCustom::DecryptECB(const uint8_t inData[], uint32_t inLen, const uint8_t key[])
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
-    uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
+    auto* out = new uint8_t[inLen];
+    auto* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
     {
@@ -219,9 +219,9 @@ uint8_t* AESCustom::DecryptECB(const uint8_t inData[], uint32_t inLen, const uin
 uint8_t* AESCustom::EncryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
+    auto* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
-    uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
+    auto* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
     memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
@@ -239,9 +239,9 @@ uint8_t* AESCustom::EncryptCBC(const uint8_t inData[], uint32_t inLen, const uin
 uint8_t* AESCustom::DecryptCBC(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
+    auto* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
-    uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
+    auto* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
     memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
@@ -259,10 +259,10 @@ uint8_t* AESCustom::DecryptCBC(const uint8_t inData[], uint32_t inLen, const uin
 uint8_t* AESCustom::EncryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
+    auto* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
     uint8_t encryptedBlock[blockBytesLen];
-    uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
+    auto* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
     memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
@@ -280,9 +280,9 @@ uint8_t* AESCustom::EncryptCFB(const uint8_t inData[], uint32_t inLen, const uin
 uint8_t* AESCustom::DecryptCFB(const uint8_t inData[], uint32_t inLen, const uint8_t key[], const uint8_t* ivKey)
 {
     CheckLength(inLen);
-    uint8_t* out = new uint8_t[inLen];
+    auto* out = new uint8_t[inLen];
     uint8_t block[blockBytesLen];
-    uint8_t* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
+    auto* roundKeys = new uint8_t[4 * Nb * (Nr + 1)];
     KeyExpansion(key, roundKeys);
     memcpy(block, ivKey, blockBytesLen);
     for (uint32_t i = 0; i < inLen; i += blockBytesLen)
@@ -309,7 +309,8 @@ void AESCustom::CheckLength(uint32_t len)
 void AESCustom::EncryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys)
 {
     uint8_t state[4][Nb];
-    uint32_t i, j;
+    uint32_t i;
+    uint32_t j;
 
     for (i = 0; i < 4; i++)
     {
@@ -345,7 +346,8 @@ void AESCustom::EncryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t*
 void AESCustom::DecryptBlock(const uint8_t inData[], uint8_t outData[], uint8_t* roundKeys)
 {
     uint8_t state[4][Nb];
-    uint32_t i, j;
+    uint32_t i;
+    uint32_t j;
 
     for (i = 0; i < 4; i++)
     {
@@ -474,7 +476,7 @@ void AESCustom::RotWord(uint8_t* data)
     data[3] = c;
 }
 
-void AESCustom::XorWords(uint8_t* dataFirst, uint8_t* dataSecond, uint8_t* dataThird)
+void AESCustom::XorWords(const uint8_t* dataFirst, const uint8_t* dataSecond, uint8_t* dataThird)
 {
     int i;
     for (i = 0; i < 4; i++)
@@ -555,7 +557,7 @@ void AESCustom::InvMixColumns(uint8_t state[4][Nb])
 {
     uint8_t temp_state[4][Nb];
 
-    for (auto & i : temp_state)
+    for (auto& i : temp_state)
     {
         memset(i, 0, 4);
     }
@@ -602,11 +604,11 @@ void AESCustom::printHexArray(uint8_t arrData[], uint32_t arrSize)
 
 void AESCustom::printHexVector(std::vector<uint8_t> a)
 {
-    for (unsigned char i : a)
+    for (uint8_t i : a)
     {
         printf("%02x ", i);
     }
-    std::cout <<'\n';
+    std::cout << '\n';
 }
 
 std::vector<uint8_t> AESCustom::ArrayToVector(uint8_t* arr, uint32_t size)
@@ -669,16 +671,17 @@ std::vector<uint8_t> AESCustom::DecryptCFB(std::vector<uint8_t> inData, std::vec
     return v;
 }
 
-std::vector<unsigned char> AESCustom::generateRandomKey(size_t length)
+std::vector<uint8_t> AESCustom::generateRandomKey(size_t length)
 {
-    std::vector<unsigned char> key(length);
+    std::vector<uint8_t> key(length);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dis(0, 255);
 
     for (auto& byte : key)
-        byte = static_cast<unsigned char>(dis(gen));
-
+    {
+        byte = static_cast<uint8_t>(dis(gen));
+    }
     return key;
 }
 
@@ -690,7 +693,9 @@ std::vector<uint8_t> AESCustom::generateRandomIV(size_t length)
     std::uniform_int_distribution<int> dis(0, 255);
 
     for (auto& byte : iv)
+    {
         byte = static_cast<uint8_t>(dis(gen));
+    }
 
     return iv;
 }
@@ -706,16 +711,21 @@ std::vector<uint8_t> AESCustom::PKCS7Pad(const std::vector<uint8_t>& data)
 std::vector<uint8_t> AESCustom::PKCS7Unpad(const std::vector<uint8_t>& data)
 {
     if (data.empty())
+    {
         throw std::runtime_error("Empty data in unpad");
+    }
     uint8_t pad_len = data.back();
     if (pad_len > blockBytesLen || pad_len == 0)
+    {
         throw std::runtime_error("Invalid padding");
+    }
 
     for (size_t i = data.size() - pad_len; i < data.size(); ++i)
     {
         if (data[i] != pad_len)
+        {
             throw std::runtime_error("Invalid padding content");
+        }
     }
-
     return std::vector<uint8_t>(data.begin(), data.end() - pad_len);
 }

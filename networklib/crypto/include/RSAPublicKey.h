@@ -5,8 +5,8 @@
 
 struct RSAPublicKey
 {
-    boost::multiprecision::cpp_int exponent;
-    boost::multiprecision::cpp_int modulus;
+    boost::multiprecision::cpp_int _exponent;
+    boost::multiprecision::cpp_int _modulus;
 };
 
 #endif  // RSAPUBLICKEY_H

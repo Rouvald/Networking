@@ -4,11 +4,8 @@
 #define SHA256CUSTOM_H
 
 #include <cstdint>
-#include <iomanip>
-#include <string>
 #include <vector>
 
-std::string sha256(std::string m);
-std::vector<uint8_t> hexStringToBytes(const std::string& hex);
+std::vector<uint8_t> sha256(const std::vector<uint8_t>& data);
 
 #endif // SHA256CUSTOM_H

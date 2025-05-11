@@ -6,7 +6,7 @@ HandshakeContext::HandshakeContext(bool isClient) : _isClient(isClient), _handsh
 {
     if (!_isClient)
     {
-        generateRSAKeyPair();
+        generateRSAKeyPair(static_cast<uint32_t>(RSACustom::RSAKeyLength::RSA_2048));
     }
 }
 
@@ -21,10 +21,9 @@ bool HandshakeContext::isHandshakeComplete() const
     return _handshakeComplete;
 }
 
-void HandshakeContext::generateRSAKeyPair()
+void HandshakeContext::generateRSAKeyPair(const uint32_t& keySize)
 {
-    // @todo: mb need pass bits, like 1024, 2048
-    _rsa.generateKeys();
+    _rsa.generateKeys(keySize);
 }
 
 RSAPublicKey HandshakeContext::getPublicKey() const
@@ -43,12 +42,7 @@ boost::multiprecision::cpp_int HandshakeContext::encryptSessionKeyWithServerRSA(
     {
         throw std::runtime_error("Session key not initialized");
     }
-    std::string sessionKeyStr(_sessionKey.begin(), _sessionKey.end());
-
-    RSACustom tempRsa;
-    tempRsa.loadPublicKey(serverPubKey);
-
-    return tempRsa.encrypt(sessionKeyStr);
+    return RSACustom::encrypt(_sessionKey, serverPubKey);
 }
 
 void HandshakeContext::decryptSessionKeyFromClient(const bmp::cpp_int& encryptedKey)
@@ -57,8 +51,7 @@ void HandshakeContext::decryptSessionKeyFromClient(const bmp::cpp_int& encrypted
     {
         throw std::runtime_error("Only server can decrypt");
     }
-    std::string decryptedStr = _rsa.decrypt(encryptedKey);
-    _sessionKey = std::vector<uint8_t>(decryptedStr.begin(), decryptedStr.end());
+    _sessionKey = _rsa.decrypt(encryptedKey);
     _handshakeComplete = true;
 }
 

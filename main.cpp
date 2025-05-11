@@ -8,6 +8,20 @@
 #include <HandshakeContext.h>
 #include <SessionCipher.h>
 
+constexpr uint8_t minStringLength{10};
+constexpr uint8_t maxStringLength{50};
+
+void printData(const std::vector<uint8_t>& data)
+{
+    std::cout << "[printData]: "
+              << "\t";
+    for (const auto& elem : data)
+    {
+        std::cout << elem << " ";
+    }
+    std::cout << std::endl;
+}
+
 uint32_t generateRandomStringLength(const uint32_t& min, const uint32_t& max)
 {
     std::mt19937 rng(std::random_device{}());
@@ -36,41 +50,61 @@ std::string generateRandomString(const uint32_t& length)
 void testRSA()
 {
     RSACustom rsa = RSACustom();
-    rsa.generateKeys();
+    rsa.generateKeys(static_cast<uint32_t>(RSACustom::RSAKeyLength::RSA_2048));
 
-    std::string msg{generateRandomString(generateRandomStringLength(10, 50))};
+    std::string msg{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
     bmp::cpp_int ciph = rsa.encrypt(msg);
     std::cout << "Encrypted: " << ciph << "\n";
 
-    std::string decrypted = rsa.decrypt(ciph);
-    std::cout << "Decrypted: " << decrypted << "\n";
+    std::vector<uint8_t> decrypted = rsa.decrypt(ciph);
+    printData(decrypted);
 
     // with sign
-    std::string message {generateRandomString(generateRandomStringLength(10, 50))};
+    std::string message{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
+    std::vector<uint8_t> data{message.begin(), message.end()};
 
-    bmp::cpp_int signature = rsa.sign(message);
+    bmp::cpp_int signature = rsa.sign(data);
     std::cout << "Signature:\n" << signature << "\n\n";
 
-    bool isValid = rsa.verify(message, signature);
+    bool isValid = rsa.verify(data, signature);
     std::cout << "Signature valid? " << (isValid ? "YES" : "NO") << "\n";
 
-    std::string tampered = message + "!";
-    bool fakeValid = rsa.verify(tampered, signature);
+    data.push_back('!');
+    bool fakeValid = rsa.verify(data, signature);
     std::cout << "Tampered valid? " << (fakeValid ? "YES" : "NO") << "\n";
+}
+
+void testRSA_AES()
+{
+    RSACustom rsa = RSACustom();
+    rsa.generateKeys(static_cast<uint32_t>(RSACustom::RSAKeyLength::RSA_2048));
+
+    RSAPublicKey pub{rsa.getPublicKey()};
+
+    std::vector<uint8_t> data{AESCustom::generateRandomKey(CIPHER_256_KEY_SIZE)};
+    bmp::cpp_int ciph = rsa.encrypt(data, pub);
+    printData(data);
+    std::cout << "Encrypted: " << ciph << "\n";
+
+    std::vector<uint8_t> decrypted = rsa.decrypt(ciph);
+    printData(decrypted);
 }
 
 void testSHA()
 {
-    const std::string testMsg{generateRandomString(generateRandomStringLength(10, 50))};
-    auto hash_1 = sha256(testMsg);
-    std::cout << "hash_1 - " << hash_1 << '\n';
-    auto hash_2 = sha256(testMsg);
-    std::cout << "hash_2 - " << hash_2 << '\n';
+    const std::string testMsg{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
+    const std::vector<uint8_t> data{testMsg.begin(), testMsg.end()};
+    auto hash_1 = sha256(data);
+    std::cout << "hash_1 - " << '\n';
+    printData(hash_1);
+    auto hash_2 = sha256(data);
+    std::cout << "hash_2 - " << '\n';
+    printData(hash_2);
 }
 
 void testAES(const std::string& label, AESKeyLength keyLength, size_t keySize)
 {
-    std::string plainText{generateRandomString(generateRandomStringLength(10, 50))};
+    std::string plainText{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
     std::vector<unsigned char> data(plainText.begin(), plainText.end());
 
     std::vector<unsigned char> key = AESCustom::generateRandomKey(keySize);
@@ -102,8 +136,8 @@ void testAES(const std::string& label, AESKeyLength keyLength, size_t keySize)
 
 void testAESs()
 {
-    testAES("AES-128 CBC", AESKeyLength::AES_128, 16);
-    testAES("AES-256 CBC", AESKeyLength::AES_256, 32);
+    testAES("AES-128 CBC", AESKeyLength::AES_128, CIPHER_128_KEY_SIZE);
+    testAES("AES-256 CBC", AESKeyLength::AES_256, CIPHER_256_KEY_SIZE);
 }
 
 void testHandshake()
@@ -161,7 +195,7 @@ void testSecureSession()
     serverCipher.setKey(serverHandshake.getSessionKey());
     serverCipher.setIV(clientCipher.getIV());  // sync IV
 
-    std::string plaintext{generateRandomString(generateRandomStringLength(10, 50))};
+    std::string plaintext{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
     std::vector<uint8_t> data(plaintext.begin(), plaintext.end());
 
     auto encrypted = clientCipher.encrypt(data);
@@ -191,17 +225,18 @@ int32_t main(int32_t argc, char** argv)
     std::cout << std::endl << "===================================================================" << std::endl << std::endl;
 
     // RSA
-    testRSA();
+    // testRSA();
+    // testRSA_AES();
 
     std::cout << std::endl << "===================================================================" << std::endl << std::endl;
 
     // sha
-    testSHA();
+    // testSHA();
 
     std::cout << std::endl << "===================================================================" << std::endl << std::endl;
 
     // AES
-    testAESs();
+    // testAESs();
 
     std::cout << std::endl << "===================================================================" << std::endl << std::endl;
 

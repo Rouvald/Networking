@@ -4,9 +4,8 @@
 #include <stdexcept>
 #include <vector>
 
-SessionCipher::SessionCipher() : _aesLen(AESKeyLength::AES_128)  // @note: def
-{
-}
+// @note: def
+SessionCipher::SessionCipher() : _aesLen(AESKeyLength::AES_256) {}
 
 void SessionCipher::setKey(const std::vector<uint8_t>& key)
 {
@@ -27,7 +26,8 @@ void SessionCipher::setKey(const std::vector<uint8_t>& key)
 
     if (_iv.empty())
     {
-        _iv = AESCustom::generateRandomIV();  // @noter: def
+        // @noter: def
+        _iv = AESCustom::generateRandomIV();
     }
 }
 

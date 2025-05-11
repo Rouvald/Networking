@@ -112,12 +112,12 @@ void compress_block(uint32_t (&H)[8], const uint8_t (&block)[64])
     }
 }
 
-std::string sha256(std::string m)
+std::vector<uint8_t> sha256(const std::vector<uint8_t>& data)
 {
     uint32_t H[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
-    int32_t const size = m.size();
-    int32_t l = (size * 8);
+    const int32_t size{static_cast<int32_t>(data.size())};
+    const uint64_t l = static_cast<uint64_t>(size) * 8;
     std::vector<uint8_t> message;
 
     int32_t N = 1;
@@ -127,46 +127,35 @@ std::string sha256(std::string m)
     }
 
     int32_t k = 0;
-    for (int32_t i = l; i < ((N * 512) - 8 - 64); i += 8)
+    for (int32_t i = l; i < (N * 512 - 8 - 64); i += 8)
     {
-        k++;
+        ++k;
     }
-
     message.reserve(size + k + 1 + 8);
-    copy_n(m.c_str(), size, back_inserter(message));
-    message.push_back(128);
-    message.insert(message.end(), k, 0);
+    message.insert(message.end(), data.begin(), data.end());
+    message.push_back(0x80);
+    message.insert(message.end(), k, 0x00);
 
-    for (int32_t i = 0; i < 8; ++i)
+    for (int i = 7; i >= 0; --i)
     {
-        message.push_back((((static_cast<uint64_t>(l)) >> (56 - (8 * i))) & 0xFFu));
+        message.push_back((l >> (i * 8)) & 0xFF);
     }
 
-    for (int32_t i = 0; i < N; i++)
+    for (int i = 0; i < static_cast<int>(message.size() / 64); ++i)
     {
         uint8_t block[64];
-        memcpy(block, &message[i * 64], 64);
+        std::memcpy(block, &message[i * 64], 64);
         compress_block(H, block);
     }
 
-    std::stringstream ss;
-    for (unsigned int& i : H)
+    std::vector<uint8_t> hashBytes;
+    hashBytes.reserve(32);
+    for (uint32_t h : H)
     {
-        ss << std::hex << std::setw(8) << std::setfill('0') << i;
+        for (int i = 3; i >= 0; --i)
+        {
+            hashBytes.push_back((h >> (i * 8)) & 0xFF);
+        }
     }
-
-    return ss.str();
-}
-
-std::vector<uint8_t> hexStringToBytes(const std::string& hex)
-{
-    std::vector<uint8_t> bytes;
-    bytes.reserve(hex.size() / 2);
-    for (size_t i = 0; i < hex.size(); i += 2)
-    {
-        std::string const byteStr = hex.substr(i, 2);
-        auto byte = static_cast<uint8_t>(std::stoul(byteStr, nullptr, 16));
-        bytes.push_back(byte);
-    }
-    return bytes;
+    return hashBytes;
 }
