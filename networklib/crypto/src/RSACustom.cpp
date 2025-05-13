@@ -238,18 +238,14 @@ bmp::cpp_int RSACustom::encrypt(const std::string& message)
 
 bmp::cpp_int RSACustom::encrypt(const std::vector<uint8_t>& data)
 {
-    const RSAPublicKey pubKey{_public_exponent_e, _moduls_n};
+    const RSAPublicKey pubKey{._exponent=_public_exponent_e, ._modulus=_moduls_n};
     return encrypt(data, pubKey);
 }
 
 boost::multiprecision::cpp_int RSACustom::encrypt(const std::vector<uint8_t>& data, const RSAPublicKey& publicKey)
 {
-    // @tofo: create temp random, REWORK
-    std::mt19937 rng(std::random_device{}());
-    const size_t modulusByteLen = msb(publicKey._modulus) / 8 + 1;
-    auto padded = pkcs1v15_pad(data, modulusByteLen, rng);
     bmp::cpp_int m;
-    import_bits(m, padded.begin(), padded.end(), 8, false);
+    import_bits(m, data.begin(), data.end(), 8, false);
 
 #ifdef _DEBUG
     std::cout << "[encrypt] Public Key (e, n):\n" << publicKey._exponent << "\n" << publicKey._modulus << std::endl;
@@ -266,7 +262,7 @@ std::vector<uint8_t> RSACustom::decrypt(const bmp::cpp_int& cipher) const
     bmp::cpp_int m = modPow(cipher, _private_exponent_d, _moduls_n);
     std::vector<uint8_t> bytes;
     export_bits(m, std::back_inserter(bytes), 8, false);
-    return unpad(bytes);
+    return bytes;
 }
 
 // @todo: test
@@ -291,7 +287,6 @@ void RSACustom::encryptFile(const std::string& inputPath, const std::string& out
     {
         throw std::runtime_error("Failed to open output file: " + outputPath);
     }
-
     outFile.write(reinterpret_cast<const char*>(cipherBytes.data()), cipherBytes.size());
 }
 
