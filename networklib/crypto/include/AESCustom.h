@@ -76,7 +76,7 @@ private:
 
     static void InvMixColumns(uint8_t state[4][Nb]);
 
-    void InvShiftRows(uint8_t state[4][Nb]);
+    static void InvShiftRows(uint8_t state[4][Nb]);
 
     static void CheckLength(uint32_t len);
 

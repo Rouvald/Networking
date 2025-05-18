@@ -170,7 +170,7 @@ static void testHandshake()
     std::cout << "Seesion keys are " << (keysMatch ? "equal" : "different") << "\n";
 }
 
-static void testSecureSession()
+static void testSecureSession(const int32_t& strLen)
 {
     std::cout << "=== Secure Session ===\n";
 
@@ -195,7 +195,15 @@ static void testSecureSession()
     serverCipher.setKey(serverHandshake.getSessionKey());
     serverCipher.setIV(clientCipher.getIV());  // sync IV
 
-    std::string plaintext{generateRandomString(generateRandomStringLength(minStringLength, maxStringLength))};
+    std::string plaintext;
+    if (strLen == -1)
+    {
+        plaintext = generateRandomString(generateRandomStringLength(minStringLength, maxStringLength));
+    }
+    else
+    {
+        plaintext = generateRandomString(strLen);
+    }
     const std::vector<uint8_t> data(plaintext.begin(), plaintext.end());
 
     auto encrypted = clientCipher.encrypt(data);
@@ -251,9 +259,9 @@ int32_t main(int32_t argc, char** argv)
 
         // session
         // testSecureSession();
-        for (uint32_t i = 1; i < 100; ++i)
+        for (uint32_t i = 1; i < 200; ++i)
         {
-            testSecureSession();
+            testSecureSession(i);
         }
     }
     catch (const std::exception& e)
