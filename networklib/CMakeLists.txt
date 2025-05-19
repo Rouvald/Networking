@@ -20,6 +20,9 @@ set(SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/network/src/manager.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACustom.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCustom.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/ECDHECrypto.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/SHA256Custom.cpp"
 )
 
@@ -30,6 +33,9 @@ set(HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSAPublicKey.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACustom.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCustom.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/ECDHECrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/SHA256Custom.h"
 )
 
