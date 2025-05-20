@@ -26,15 +26,10 @@ set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
 set(NETWORK_LIB_NAME "networklib")
 add_subdirectory(${NETWORK_LIB_NAME})
 
-add_executable(${PROJECT_NAME}
-        #main.cpp
-        main_openssl.cpp
-)
+# add server
+set(SERVER_NAME "server")
+add_subdirectory(${SERVER_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/networklib/network/include"
-)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    ${NETWORK_LIB_NAME}
-)
+# add client
+set(CLIENT_NAME "client")
+add_subdirectory(${CLIENT_NAME})

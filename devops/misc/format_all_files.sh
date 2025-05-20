@@ -6,7 +6,9 @@ src_root=$PWD
 
 # ========== НАЧАЛО ==========
 declare -a paths=(
-    "NetworkLib"
+    "networkLib"
+    "client"
+    "server"
 )
 
 for path in "${paths[@]}";
