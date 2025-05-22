@@ -1,26 +1,32 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
-# вызов конфигурационного скрипта для дополнительных переменных
-# "./config.sh" @todo:
-src_root=$PWD
+set -euo pipefail
+IFS=$'\n\t'
 
-# ========== НАЧАЛО ==========
+src_root="$PWD"
+
+# ========== conf ==========
 declare -a paths=(
     "networkLib"
     "client"
     "server"
 )
 
-for path in "${paths[@]}";
-do
-    for file in $(find "${src_root}/${path}" -type f \( -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" \));
-    do
-        echo "${file}"
-        clang-format -i -style=file "${file}"
-    done
-done
+# check clang-format
+if ! command -v clang-format &> /dev/null; then
+    echo "Error: clang-format don't exist" >&2
+    exit 1
+fi
 
-# @todo
-main_file="${src_root}/main.cpp"
-echo "${main_file}"
-clang-format -i -style=file "${main_file}"
+# ========== main ==========
+for path in "${paths[@]}"; do
+    dir="${src_root}/${path}"
+    if [[ -d "$dir" ]]; then
+        find "$dir" -type f \( -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" \) -print0 | while IFS= read -r -d '' file; do
+            echo "$file"
+            clang-format -i -style=file "$file"
+        done
+    else
+        echo "Warning: dir '$dir' don't exist"
+    fi
+done
