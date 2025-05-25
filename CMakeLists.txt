@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.28)
 
 # setup conan profiles
-include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
-setup_conan_profiles()
+option(USE_CONAN "Use Conan for dependency management" ON)
+
+if(USE_CONAN)
+    include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
+    setup_conan_profiles()
+endif()
 
 # common settings
 set(VERSION_MAJOR 0)
