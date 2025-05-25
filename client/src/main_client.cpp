@@ -1,8 +1,13 @@
-#include <boost/asio.hpp>
 #include "TLSClient.h"
+#include <cstdint>
+#include <boost/asio/io_context.hpp>
+#include <exception>
+#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
-int main(int32_t argc, char* argv[])
+int32_t main(int32_t argc, char* argv[])
 {
     if (argc != 2)
     {
@@ -11,13 +16,15 @@ int main(int32_t argc, char* argv[])
     const std::string ipAddr{argv[1]};
     try
     {
+        std::cout << "Start client" << '\n';
         boost::asio::io_context io_context;
-        TLSClient client(io_context, ipAddr.c_str(), 52488);
+        TLSClient const client(io_context, ipAddr, 52488);
+        (void)client;
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Client error: " << e.what() << std::endl;
-        return 1;
+        std::cerr << "Client error: " << e.what() << '\n';
+        return EXIT_FAILURE;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

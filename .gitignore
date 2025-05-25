@@ -67,3 +67,6 @@ cmake-build-*/
 
 # conan
 CMake*Presets.json
+
+# QT
+*.user

@@ -1,6 +1,12 @@
 #include "ECDHECrypto.h"
 
+#include <openssl/evp.h>
+#include <cstdint>
+#include <cstddef>
+#include <openssl/ec.h>
+#include <openssl/obj_mac.h>
 #include <openssl/x509.h>
+#include <vector>
 
 ECDHE_Crypto::ECDHE_Crypto()
 {
@@ -9,32 +15,32 @@ ECDHE_Crypto::ECDHE_Crypto()
 
 ECDHE_Crypto::~ECDHE_Crypto()
 {
-    if (key)
+    if (_key != nullptr)
     {
-        EVP_PKEY_free(key);
+        EVP_PKEY_free(_key);
     }
 }
 
 EVP_PKEY* ECDHE_Crypto::get_key() const
 {
-    return key;
+    return _key;
 }
 
 std::vector<uint8_t> ECDHE_Crypto::get_public_key_der() const
 {
-    int len = i2d_PUBKEY(key, nullptr);
+    const int32_t len{i2d_PUBKEY(_key, nullptr)};
     std::vector<uint8_t> out(len);
-    unsigned char* tmp = out.data();
-    i2d_PUBKEY(key, &tmp);
+    uint8_t* tmp = out.data();
+    i2d_PUBKEY(_key, &tmp);
     return out;
 }
 
 std::vector<uint8_t> ECDHE_Crypto::compute_shared_secret(EVP_PKEY* peer_key) const
 {
-    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(key, nullptr);
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(_key, nullptr);
     EVP_PKEY_derive_init(ctx);
     EVP_PKEY_derive_set_peer(ctx, peer_key);
-    size_t secret_len;
+    size_t secret_len{0};
     EVP_PKEY_derive(ctx, nullptr, &secret_len);
     std::vector<uint8_t> secret(secret_len);
     EVP_PKEY_derive(ctx, secret.data(), &secret_len);
@@ -46,7 +52,7 @@ void ECDHE_Crypto::generate_key()
 {
     EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, nullptr);
     EVP_PKEY* params = nullptr;
-    EVP_PKEY_CTX* kctx;
+    EVP_PKEY_CTX* kctx{nullptr};
 
     EVP_PKEY_paramgen_init(pctx);
     EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, NID_X9_62_prime256v1);
@@ -54,7 +60,7 @@ void ECDHE_Crypto::generate_key()
 
     kctx = EVP_PKEY_CTX_new(params, nullptr);
     EVP_PKEY_keygen_init(kctx);
-    EVP_PKEY_keygen(kctx, &key);
+    EVP_PKEY_keygen(kctx, &_key);
 
     EVP_PKEY_CTX_free(pctx);
     EVP_PKEY_free(params);
