@@ -3,7 +3,6 @@
 .vscode
 /build*
 /output
-BDPZ_exchange
 
 # Prerequisites
 *.d
@@ -70,3 +69,9 @@ CMake*Presets.json
 
 # QT
 *.user
+
+# env
+.env
+
+# artifacts
+/artifacts

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+IMAGE_NAME="local-build-image"
+CONTAINER_NAME="local-build-temp"
+ARTIFACTS_DIR="artifacts"
+
+echo "Build project local..."
+
+# Update base image
+docker pull ghcr.io/rouvald/gcc14_conan:latest
+
+# Build project image
+docker build -f docker/Dockerfile.build -t $IMAGE_NAME .
+
+# Remove old container
+docker rm -f $CONTAINER_NAME 2>/dev/null || true
+
+# Run build container
+docker create --name $CONTAINER_NAME $IMAGE_NAME
+
+# Remove old artifacts
+rm -rf $ARTIFACTS_DIR
+
+# Extract binaries
+echo "Extract binaries into [$ARTIFACTS_DIR]..."
+rm -rf $ARTIFACTS_DIR
+mkdir -p $ARTIFACTS_DIR
+docker cp $CONTAINER_NAME:/app/build_linux_Release/bin/. $ARTIFACTS_DIR/
+
+# Remove project container
+#docker rm -f $CONTAINER_NAME
+
+echo "Binaries saved into $ARTIFACTS_DIR/"
