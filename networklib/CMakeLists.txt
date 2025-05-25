@@ -5,8 +5,8 @@ if(POLICY CMP0167)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
-#[[set(Boost_USE_STATIC_RUNTIME ON)
-set(Boost_USE_MULTITHREADED ON)]]
+set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_MULTITHREADED ON)
 
 find_package(Boost 1.87.0 REQUIRED COMPONENTS thread json url)
 

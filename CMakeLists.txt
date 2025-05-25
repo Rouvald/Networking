@@ -20,7 +20,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)
+# set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
+
+# All executable to /bin/ dir
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # add network lib
 set(NETWORK_LIB_NAME "networklib")

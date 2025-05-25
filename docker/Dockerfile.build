@@ -1,0 +1,25 @@
+FROM ghcr.io/rouvald/gcc14_conan:latest
+
+RUN apt-get update && apt-get install -y dos2unix
+
+WORKDIR /app
+
+# dirs
+COPY client/ ./client/
+COPY conanProfiles/ ./conanProfiles/
+COPY server/ ./server/
+COPY networklib/ ./networklib/
+COPY devops/ ./devops/
+
+# files
+COPY CMakeLists.txt ./
+COPY compile.sh ./
+COPY conanfile.txt ./
+
+# fix to Unix end line
+RUN find ./client ./conanProfiles ./server ./networklib ./devops \
+      -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.cmake" \) \
+      -exec dos2unix {} + \
+  && dos2unix ./CMakeLists.txt ./compile.sh ./conanfile.txt
+
+RUN chmod +x compile.sh && ./compile.sh -r
