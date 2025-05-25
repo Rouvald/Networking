@@ -16,10 +16,11 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.
     ./cmake-3.28.3-linux-x86_64.sh --skip-license --prefix=/usr/local && \
     rm cmake-3.28.3-linux-x86_64.sh
 
-WORKDIR /conan_cache
-COPY conanfile.txt .
-COPY conanProfiles/conanProfileRelease_Linux ./conanProfiles/conanProfileRelease_Linux
+COPY conanfile.txt /tmp/
+COPY conanProfiles/conanProfileRelease_Linux /tmp/
 
-RUN conan install . --profile=conanProfiles/conanProfileRelease_Linux \
-                    --profile:b=conanProfiles/conanProfileRelease_Linux  \
-                    --output-folder=build_linux_Release --build=missing
+RUN conan install /tmp/conanfile.txt \
+                  --profile=/tmp/conanProfileRelease_Linux \
+                  --profile:b=/tmp/conanProfileRelease_Linux  \
+                  --output-folder=/tmp/build \
+                  --build=missing
