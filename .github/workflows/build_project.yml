@@ -1,0 +1,57 @@
+name: Build project
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - docker/Dockerfile.build
+      - conanfile.txt
+      - conanProfiles/conanProfileRelease_Linux
+      - compile.sh
+      - '**/*.cpp'
+      - '**/*.h'
+      - CMakeLists.txt
+      - client/**
+      - server/**
+      - networklib/**
+      - devops/cmake/**
+      - docker/**
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build project using base image
+        run: |
+          docker build -f docker/Dockerfile.build -t rouvald/app_build .
+
+      - name: Extract binaries
+        run: |
+          docker create --name extract rouvald/app_build
+          docker cp extract:/app/build_linux_Release/bin/server server
+          docker cp extract:/app/build_linux_Release/bin/client client
+          docker rm extract
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-binaries
+          path: |
+            server
+            client

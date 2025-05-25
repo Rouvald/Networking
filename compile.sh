@@ -15,12 +15,14 @@ case $1 in
     ;;
 esac
 
-if [[ "${OSTYPE}" == "linux-gnu" ]];
+os_name="$(uname -s)"
+
+if [[ "$os_name" == "Linux" ]]; 
 then
     build_dir="build_linux_${build_type}"
     cmake_generator="Ninja"
     conan_profile="conanProfile${build_type}_Linux"
-elif [[ "${OSTYPE}" == "msys" ]]; 
+elif [[ "$os_name" == "MINGW64_NT"* || "$os_name" == "MSYS_NT"* ]]; 
 then
     build_dir="build_win_${build_type}"
     cmake_generator="Ninja"
