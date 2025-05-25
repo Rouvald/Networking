@@ -2,9 +2,6 @@ name: Build project
 
 on:
   push:
-    branches:
-      - main
-      - dev
     paths:
       - docker/Dockerfile.build
       - conanfile.txt
