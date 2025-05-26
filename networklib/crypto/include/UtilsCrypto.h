@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <openssl/sha.h>
-#include <openssl/evp.h>
 #include <openssl/x509.h>
 #include <vector>
 
@@ -19,7 +18,7 @@ namespace UtilsCrypto
     }
     inline EVP_PKEY* d2i_PUBKEY_from_vector(const std::vector<uint8_t>& data)
     {
-        const uint8_t* ptr {data.data()};
+        const uint8_t* ptr{data.data()};
         return d2i_PUBKEY(nullptr, &ptr, static_cast<long>(data.size()));
     }
 }  // namespace UtilsCrypto

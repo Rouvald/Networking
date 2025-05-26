@@ -5,24 +5,25 @@
 #include <openssl/evp.h>
 #include <vector>
 
-class ECDHE_Crypto {
+class ECDHECrypto
+{
 public:
-    ECDHE_Crypto();
-    ~ECDHE_Crypto();
+    ECDHECrypto();
+    ~ECDHECrypto();
 
-    ECDHE_Crypto(const ECDHE_Crypto &) = default;
-    ECDHE_Crypto &operator=(const ECDHE_Crypto &) = default;
-    ECDHE_Crypto(ECDHE_Crypto &&) = default;
-    ECDHE_Crypto &operator=(ECDHE_Crypto &&) = default;
+    ECDHECrypto(const ECDHECrypto&) = default;
+    ECDHECrypto& operator=(const ECDHECrypto&) = default;
+    ECDHECrypto(ECDHECrypto&&) = default;
+    ECDHECrypto& operator=(ECDHECrypto&&) = default;
 
-    EVP_PKEY* get_key() const ;
+    EVP_PKEY* get_key() const;
     std::vector<uint8_t> get_public_key_der() const;
-    std::vector<uint8_t> compute_shared_secret(EVP_PKEY* peer_key) const ;
+    std::vector<uint8_t> compute_shared_secret(EVP_PKEY* peer_key) const;
 
 private:
-    EVP_PKEY* _key {nullptr};
+    EVP_PKEY* _key{nullptr};
 
     void generate_key();
 };
 
-#endif //ECDHECRYPTO_H
+#endif  // ECDHECRYPTO_H

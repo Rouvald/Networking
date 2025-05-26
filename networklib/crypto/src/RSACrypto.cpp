@@ -1,21 +1,21 @@
 #include "RSACrypto.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <openssl/crypto.h>
-#include <cstddef>
-#include <openssl/evp.h>
 #include <openssl/err.h>
-#include <vector>
+#include <openssl/evp.h>
 #include <openssl/rsa.h>
+#include <vector>
 
 constexpr uint16_t KEY_SIZE{4096};
 
-RSA_Crypto::RSA_Crypto()
+RSACrypto::RSACrypto()
 {
     generate_key();
 }
 
-RSA_Crypto::~RSA_Crypto()
+RSACrypto::~RSACrypto()
 {
     if (_key != nullptr)
     {
@@ -23,14 +23,14 @@ RSA_Crypto::~RSA_Crypto()
     }
 }
 
-EVP_PKEY* RSA_Crypto::get_key() const
+EVP_PKEY* RSACrypto::get_key() const
 {
     return _key;
 }
 
-std::vector<uint8_t> RSA_Crypto::sign(const std::vector<uint8_t>& data)
+std::vector<uint8_t> RSACrypto::sign(const std::vector<uint8_t>& data)
 {
-    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX* ctx{EVP_MD_CTX_new()};
     if (ctx == nullptr)
     {
         handle_errors();
@@ -39,7 +39,7 @@ std::vector<uint8_t> RSA_Crypto::sign(const std::vector<uint8_t>& data)
     {
         handle_errors();
     }
-    EVP_PKEY_CTX* pkctx = EVP_MD_CTX_pkey_ctx(ctx);
+    EVP_PKEY_CTX* pkctx{EVP_MD_CTX_pkey_ctx(ctx)};
     if (pkctx == nullptr || EVP_PKEY_CTX_set_rsa_padding(pkctx, RSA_PKCS1_PADDING) <= 0)
     {
         handle_errors();
@@ -48,7 +48,7 @@ std::vector<uint8_t> RSA_Crypto::sign(const std::vector<uint8_t>& data)
     {
         handle_errors();
     }
-    size_t sig_len = 0;
+    size_t sig_len{0};
     if (EVP_DigestSignFinal(ctx, nullptr, &sig_len) <= 0)
     {
         handle_errors();
@@ -63,9 +63,9 @@ std::vector<uint8_t> RSA_Crypto::sign(const std::vector<uint8_t>& data)
     return signature;
 }
 
-bool RSA_Crypto::verify(const std::vector<uint8_t>& data, const std::vector<uint8_t>& signature)
+bool RSACrypto::verify(const std::vector<uint8_t>& data, const std::vector<uint8_t>& signature)
 {
-    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_MD_CTX* ctx{EVP_MD_CTX_new()};
     if (ctx == nullptr)
     {
         handle_errors();
@@ -75,7 +75,7 @@ bool RSA_Crypto::verify(const std::vector<uint8_t>& data, const std::vector<uint
         handle_errors();
     }
 
-    EVP_PKEY_CTX* pkctx = EVP_MD_CTX_pkey_ctx(ctx);
+    EVP_PKEY_CTX* pkctx{EVP_MD_CTX_pkey_ctx(ctx)};
     if (pkctx == nullptr || EVP_PKEY_CTX_set_rsa_padding(pkctx, RSA_PKCS1_PADDING) <= 0)
     {
         handle_errors();
@@ -86,38 +86,34 @@ bool RSA_Crypto::verify(const std::vector<uint8_t>& data, const std::vector<uint
         handle_errors();
     }
 
-    const int32_t ret = EVP_DigestVerifyFinal(ctx, signature.data(), signature.size());
+    const int32_t ret{EVP_DigestVerifyFinal(ctx, signature.data(), signature.size())};
     EVP_MD_CTX_free(ctx);
     return ret == 1;
 }
 
-void RSA_Crypto::generate_key()
+void RSACrypto::generate_key()
 {
-    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    EVP_PKEY_CTX* ctx{EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr)};
     if (ctx == nullptr)
     {
         handle_errors();
     }
-
     if (EVP_PKEY_keygen_init(ctx) <= 0)
     {
         handle_errors();
     }
-
     if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, KEY_SIZE) <= 0)
     {
         handle_errors();
     }
-
     if (EVP_PKEY_keygen(ctx, &_key) <= 0)
     {
         handle_errors();
     }
-
     EVP_PKEY_CTX_free(ctx);
 }
 
-void RSA_Crypto::handle_errors()
+void RSACrypto::handle_errors()
 {
     ERR_print_errors_fp(stderr);
     abort();

@@ -1,25 +1,25 @@
 #include "TLSClient.h"
-#include <cstdint>
 #include <boost/asio/io_context.hpp>
-#include <exception>
+#include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
-int32_t main(int32_t argc, char* argv[])
+int32_t mainThread(int32_t argc, char* argv[])
 {
     if (argc != 2)
     {
-        throw std::runtime_error("Input args != 2");
+        std::cout << "Input args != 1\n";
+        return EXIT_FAILURE;
     }
     const std::string ipAddr{argv[1]};
     try
     {
         std::cout << "Start client" << '\n';
         boost::asio::io_context io_context;
-        TLSClient const client(io_context, ipAddr, 52488);
-        (void)client;
+        TLSClient client(io_context, ipAddr, 52488);
+        client.run_handshake_and_send();
     }
     catch (const std::exception& e)
     {
@@ -27,4 +27,9 @@ int32_t main(int32_t argc, char* argv[])
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
+}
+
+int32_t main(int32_t argc, char* argv[])
+{
+    return mainThread(argc, argv);
 }

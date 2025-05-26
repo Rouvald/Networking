@@ -18,9 +18,9 @@ namespace UtilsNetwork
 
     inline void write_uint32(btcp::socket& socket, uint32_t val)
     {
-        uint32_t net_val {htonl(val)};
+        uint32_t net_val{htonl(val)};
         boost::asio::write(socket, boost::asio::buffer(&net_val, sizeof(net_val)));
     }
-}  // namespace SHACrypto
+}  // namespace UtilsNetwork
 
 #endif  // SHACRYPTO_H
