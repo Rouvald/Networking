@@ -2,19 +2,19 @@
 
 set -e
 
-# === settings ===
+# settings
 USERNAME="rouvald"
 REPO="gcc14_conan"
 IMAGE="ghcr.io/${USERNAME}/${REPO}"
 
-# === get sha cur commit ===
+# get sha cur commit
 SHA=$(git rev-parse --short HEAD)
 TAG_SHA="sha-${SHA}"
 TAG_LATEST="latest"
 
 echo "Building base image with tags: $TAG_SHA, $TAG_LATEST"
 
-# === Auth  GitHub Container Registry ===
+# auth to GitHub Container Registry
 if [ -f .env ]; then
   source .env
 fi
@@ -27,13 +27,13 @@ fi
 echo "Logging in to GitHub Container Registry..."
 echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${USERNAME}" --password-stdin
 
-# === Build ===
+# build
 docker build -f docker/Dockerfile.base -t "${IMAGE}:${TAG_SHA}" .
 
-# === setup latest tag ===
+# setup latest tag
 docker tag "${IMAGE}:${TAG_SHA}" "${IMAGE}:${TAG_LATEST}"
 
-# === push ===
+# push
 echo "Pushing image: $TAG_SHA"
 docker push "${IMAGE}:${TAG_SHA}"
 

@@ -2,7 +2,7 @@
 
 set -e
 
-# === Args ===
+# args
 ROLE=""
 IP_ARG=""
 NETWORK_NAME="networking-net"

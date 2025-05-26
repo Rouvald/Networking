@@ -8,28 +8,28 @@ ARTIFACTS_DIR="artifacts"
 
 echo "Build project local..."
 
-# Update base image
+# update base image
 docker pull ghcr.io/rouvald/gcc14_conan:latest
 
-# Build project image
+# build project image
 docker build -f docker/Dockerfile.build -t $IMAGE_NAME .
 
-# Remove old container
+# remove old container
 docker rm -f $CONTAINER_NAME 2>/dev/null || true
 
-# Run build container
+# run build container
 docker create --name $CONTAINER_NAME $IMAGE_NAME
 
-# Remove old artifacts
+# remove old artifacts
 rm -rf $ARTIFACTS_DIR
 
-# Extract binaries
+# extract binaries
 echo "Extract binaries into [$ARTIFACTS_DIR]..."
 rm -rf $ARTIFACTS_DIR
 mkdir -p $ARTIFACTS_DIR
 docker cp $CONTAINER_NAME:/app/build_linux_Release/bin/. $ARTIFACTS_DIR/
 
-# Remove project container
-#docker rm -f $CONTAINER_NAME
+# remove project container
+docker rm -f $CONTAINER_NAME
 
 echo "Binaries saved into $ARTIFACTS_DIR/"

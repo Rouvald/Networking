@@ -7,7 +7,7 @@ src_root="$PWD"
 
 # ========== conf ==========
 declare -a paths=(
-    "networkLib"
+    "networklib"
     "client"
     "server"
 )

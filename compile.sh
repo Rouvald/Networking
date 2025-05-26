@@ -8,12 +8,14 @@ cmake_generator="Ninja"
 conan_profile_dir="conanProfiles"
 conan_profile="conanProfileRelease"
 use_conan="ON"
+with_tests="OFF"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     -d ) build_type="Debug" ;;
     -r ) build_type="Release" ;;
     --no-conan ) use_conan="OFF" ;;
+    --with-tests ) with_tests="ON" ;;
     *) echo "Unknown arg: $1"; exit 1 ;;
   esac
   shift
@@ -49,7 +51,8 @@ cmake -DCMAKE_BUILD_TYPE:STRING=${build_type} \
       -S "." \
       -B "${build_dir}" \
       -G "${cmake_generator}" \
-      -DUSE_CONAN=${use_conan}
+      -DUSE_CONAN=${use_conan} \
+      -DNETWORKING_TESTS=${with_tests}
 
 cmake --build "${build_dir}" --config ${build_type} --target clean -j 18 --
 cmake --build "${build_dir}" --config ${build_type} --target all -j 18 --

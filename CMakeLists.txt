@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 # setup conan profiles
-option(USE_CONAN "Use Conan for dependency management" ON)
+set(USE_CONAN "OFF" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
 
 if(USE_CONAN)
     include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
@@ -41,3 +41,12 @@ add_subdirectory(${SERVER_NAME})
 # add client
 set(CLIENT_NAME "client")
 add_subdirectory(${CLIENT_NAME})
+
+set(NETWORKING_TESTS "OFF" CACHE BOOL "Turn ON/OFF tests building")
+
+if(${NETWORKING_TESTS})
+    enable_testing()
+    set(NETWORKING_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(NETWORKING_TESTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+    add_subdirectory(${NETWORKING_TESTS_DIR})
+endif()
