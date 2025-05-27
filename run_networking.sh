@@ -48,4 +48,9 @@ fi
 
 # Run container
 echo "Run container ($ROLE) с IP: ${IP_ARG:-<none>}"
-docker run -it --rm --network $NETWORK_NAME --name $CONTAINER_NAME $IMAGE_NAME bash -c "$RUN_CMD"
+if [ "$ROLE" == "client" ];
+then
+  docker run -it --rm --network $NETWORK_NAME --name $CONTAINER_NAME $IMAGE_NAME bash -c "$RUN_CMD"
+else
+  docker run -it --rm -p 52488:52488 --network $NETWORK_NAME --name $CONTAINER_NAME $IMAGE_NAME bash -c "$RUN_CMD"
+fi

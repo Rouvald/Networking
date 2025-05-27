@@ -19,7 +19,7 @@ int32_t mainThread(int32_t argc, char* argv[])
         std::cout << "Start server" << '\n';
         boost::asio::io_context io_context;
         const boost::asio::ip::address bind_ip{boost::asio::ip::make_address(ipAddr.c_str())};
-        TLSServer server(io_context, btcp::endpoint(bind_ip, 52488));
+        TLSServer server(io_context, btcp::endpoint(boost::asio::ip::address_v4::any(), 52488));
 
         server.start_accept();
         io_context.run();
