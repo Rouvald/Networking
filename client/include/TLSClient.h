@@ -27,6 +27,8 @@ private:
     btcp::socket _socket;
     RSACrypto _rsa;
     ECDHECrypto _client_ecdh;
+
+    Timer::Timer _timer;
 };
 
 #endif  // TLSCLIENT_H

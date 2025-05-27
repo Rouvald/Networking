@@ -18,6 +18,8 @@ private:
     RSACrypto _rsa;
     ECDHECrypto _server_ecdh;
 
+    Timer::Timer _timer;
+
     void handle_handshake(btcp::socket& socket);
 };
 

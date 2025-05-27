@@ -17,6 +17,8 @@ TLSClient::TLSClient(boost::asio::io_context& io_context, const std::string& hos
 
 void TLSClient::run_handshake_and_send()
 {
+    _timer.start();
+
     std::vector<uint8_t> client_pub{_client_ecdh.get_public_key_der()};
     UtilsNetwork::write_uint32(_socket, client_pub.size());
     boost::asio::write(_socket, boost::asio::buffer(client_pub));
@@ -31,6 +33,9 @@ void TLSClient::run_handshake_and_send()
     auto aes_key{UtilsCrypto::sha256(shared_secret)};
 
     AESCrypto aes(aes_key);
+
+    _timer.stop();
+    _timer.print("Client handshake");
 
     const std::string msg{"Hello from server! Add some useless info for testing"};
     std::vector<uint8_t> ivKey{AESCrypto::generate_iv()};

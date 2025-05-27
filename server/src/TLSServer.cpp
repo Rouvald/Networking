@@ -11,10 +11,10 @@
 
 TLSServer::TLSServer(boost::asio::io_context& io_context, const btcp::endpoint& endpoint) : _acceptor(io_context, endpoint)
 {
-    BIO* bp{BIO_new_fp(stdout, BIO_NOCLOSE)};
+    /*BIO* bp{BIO_new_fp(stdout, BIO_NOCLOSE)};
     EVP_PKEY_print_private(bp, _rsa.get_key(), 1, NULL);
     EVP_PKEY_print_public(bp, _rsa.get_key(), 1, NULL);
-    BIO_free(bp);
+    BIO_free(bp);*/
 }
 
 void TLSServer::start_accept()
@@ -28,6 +28,8 @@ void TLSServer::start_accept()
 
 void TLSServer::handle_handshake(btcp::socket& socket)
 {
+    _timer.start();
+
     const uint32_t pub_len{UtilsNetwork::read_uint32(socket)};
     std::vector<uint8_t> client_pub(pub_len);
     boost::asio::read(socket, boost::asio::buffer(client_pub));
@@ -42,6 +44,9 @@ void TLSServer::handle_handshake(btcp::socket& socket)
     const std::vector<uint8_t> aes_key{UtilsCrypto::sha256(shared_secret)};
 
     AESCrypto aes(aes_key);
+
+    _timer.stop();
+    _timer.print("Server handshake");
 
     std::vector<uint8_t> ivKey(AES_IV_KEY_SIZE);
     boost::asio::read(socket, boost::asio::buffer(ivKey));

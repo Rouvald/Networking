@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <openssl/sha.h>
 #include <openssl/x509.h>
+#include <openssl/hmac.h>
 #include <vector>
 
 namespace UtilsCrypto
@@ -21,6 +22,19 @@ namespace UtilsCrypto
         const uint8_t* ptr{data.data()};
         return d2i_PUBKEY(nullptr, &ptr, static_cast<long>(data.size()));
     }
-}  // namespace UtilsCrypto
+    inline std::vector<uint8_t> hmac_sha256(const std::vector<uint8_t>& key, const std::vector<uint8_t>& data)
+    {
+        unsigned int len = EVP_MAX_MD_SIZE;
+        std::vector<uint8_t> result(len);
+
+        HMAC(EVP_sha256(),
+            key.data(), key.size(),
+            data.data(), data.size(),
+            result.data(), &len);
+
+        result.resize(len);
+        return result;
+    }
+} // namespace UtilsCrypto
 
 #endif  // UTILSCRYPTO_H
