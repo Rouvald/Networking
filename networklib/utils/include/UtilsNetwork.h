@@ -4,36 +4,8 @@
 #include <cstdint>
 #include <vector>
 #include <boost/asio.hpp>
-#include <chrono>
-#include <iostream>
 
-typedef boost::asio::ip::tcp btcp;
-
-namespace Timer
-{
-    class Timer {
-    public:
-        void start() {
-            _start = std::chrono::high_resolution_clock::now();
-        }
-
-        void stop() {
-            _end = std::chrono::high_resolution_clock::now();
-        }
-
-        double elapsed_ms() const {
-            return std::chrono::duration<double, std::milli>(_end - _start).count();
-        }
-
-        void print(const std::string& label = "Elapsed") const {
-            std::cout << label << ": " << elapsed_ms() << " ms\n";
-        }
-
-    private:
-        std::chrono::high_resolution_clock::time_point _start, _end;
-    };
-};
-
+using btcp = boost::asio::ip::tcp;
 
 namespace UtilsNetwork
 {
@@ -59,7 +31,7 @@ namespace UtilsNetwork
     }
     inline std::vector<uint8_t> read_vector(boost::asio::ip::tcp::socket& socket)
     {
-        uint32_t size;
+        uint32_t size {0};
         boost::asio::read(socket, boost::asio::buffer(&size, sizeof(size)));
         size = ntohl(size);
 

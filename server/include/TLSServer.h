@@ -4,6 +4,7 @@
 #include <RSACrypto.h>
 #include <ECDHECrypto.h>
 #include <UtilsNetwork.h>
+#include <Utils.h>
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -18,7 +19,7 @@ private:
     RSACrypto _rsa;
     ECDHECrypto _server_ecdh;
 
-    Timer::Timer _timer;
+    Utils::Timer _timer;
 
     void handle_handshake(btcp::socket& socket);
 };

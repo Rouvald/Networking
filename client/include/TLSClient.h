@@ -4,6 +4,7 @@
 #include <ECDHECrypto.h>
 #include <RSACrypto.h>
 #include <UtilsNetwork.h>
+#include <Utils.h>
 #include <boost/asio/ip/tcp.hpp>
 #include <cstdint>
 #include <string>
@@ -28,7 +29,7 @@ private:
     RSACrypto _rsa;
     ECDHECrypto _client_ecdh;
 
-    Timer::Timer _timer;
+    Utils::Timer _timer;
 };
 
 #endif  // TLSCLIENT_H

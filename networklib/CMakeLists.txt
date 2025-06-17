@@ -21,8 +21,9 @@ set(SOURCES
 )
 
 set(HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/UtilsNetwork.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/UtilsCrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/Utils.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsNetwork.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsCrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/ECDHECrypto.h"
@@ -34,6 +35,7 @@ add_library(${PROJECT_NAME} STATIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/utils/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/network/include"
 )

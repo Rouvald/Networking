@@ -2,9 +2,9 @@
 #define UTILSCRYPTO_H
 
 #include <cstdint>
+#include <openssl/hmac.h>
 #include <openssl/sha.h>
 #include <openssl/x509.h>
-#include <openssl/hmac.h>
 #include <vector>
 
 namespace UtilsCrypto
