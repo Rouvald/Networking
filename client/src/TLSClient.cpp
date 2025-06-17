@@ -37,7 +37,7 @@ void TLSClient::run_handshake_and_send()
     _timer.stop();
     _timer.print("Client handshake");
 
-    const std::string msg{"Hello from server! Add some useless info for testing"};
+    const std::string msg{"Hello from client! Add some useless info for testing"};
     std::vector<uint8_t> ivKey{AESCrypto::generate_iv()};
     std::vector<uint8_t> tag;
     std::vector<uint8_t> ciphertext{aes.encrypt(std::vector<uint8_t>(msg.begin(), msg.end()), ivKey, tag)};

@@ -16,7 +16,7 @@
 
 
 ## Настройка окружения
-В проект добавлен conan (packege manager C/C++)
+В проект добавлен conan (package manager C/C++)
 Профайлы для сборок находятся в папке conanProfiles
 
 ### Windows

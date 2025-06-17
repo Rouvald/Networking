@@ -10,7 +10,7 @@ int32_t mainThread(int32_t argc, char* argv[])
 {
     if (argc != 2)
     {
-        std::cout << "Input args != 1\n";
+        std::cout << "Usage: client <server_ip>\n";
         return EXIT_FAILURE;
     }
     const std::string ipAddr{argv[1]};

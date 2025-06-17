@@ -19,7 +19,7 @@ project(networking VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 # setup base c++ params
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23 -Wall -Wextra -Wpedantic -fpermissive -fPIC -fmax-errors=5 ") # -pthread
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -fpermissive -fPIC -fmax-errors=5 ") # -pthread
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")

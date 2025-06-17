@@ -54,5 +54,5 @@ cmake -DCMAKE_BUILD_TYPE:STRING=${build_type} \
       -DUSE_CONAN=${use_conan} \
       -DNETWORKING_TESTS=${with_tests}
 
-cmake --build "${build_dir}" --config ${build_type} --target clean -j 18 --
-cmake --build "${build_dir}" --config ${build_type} --target all -j 18 --
+cmake --build "${build_dir}" --config ${build_type} --target clean -j 18
+cmake --build "${build_dir}" --config ${build_type} --target all -j 18

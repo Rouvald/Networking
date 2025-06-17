@@ -25,7 +25,6 @@ rm -rf $ARTIFACTS_DIR
 
 # extract binaries
 echo "Extract binaries into [$ARTIFACTS_DIR]..."
-rm -rf $ARTIFACTS_DIR
 mkdir -p $ARTIFACTS_DIR
 docker cp $CONTAINER_NAME:/app/build_linux_Release/bin/. $ARTIFACTS_DIR/
 
