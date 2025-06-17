@@ -1,0 +1,9 @@
+FROM ubuntu:noble
+
+ARG ROLE=server
+WORKDIR /app
+
+COPY artifacts/${ROLE} /app/${ROLE}
+
+RUN chmod +x /app/${ROLE}
+CMD ["bash", "-c", "./$ROLE"]

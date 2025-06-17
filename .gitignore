@@ -3,7 +3,6 @@
 .vscode
 /build*
 /output
-BDPZ_exchange
 
 # Prerequisites
 *.d
@@ -64,3 +63,15 @@ dkms.conf
 
 # CMake
 cmake-build-*/
+
+# conan
+CMake*Presets.json
+
+# QT
+*.user
+
+# env
+.env
+
+# artifacts
+/artifacts

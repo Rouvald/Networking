@@ -1,0 +1,24 @@
+FROM gcc:14
+
+RUN apt-get update && apt-get upgrade -y && apt-get clean
+RUN apt-get install -y \
+    ninja-build \
+    cmake \
+    python3 python3-pip \
+    curl git unzip xz-utils
+
+RUN pip install --break-system-packages conan
+
+RUN curl -LO https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.sh && \
+    chmod +x cmake-3.28.3-linux-x86_64.sh && \
+    ./cmake-3.28.3-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+    rm cmake-3.28.3-linux-x86_64.sh
+
+COPY conanfile.txt /tmp/
+COPY conanProfiles/conanProfileRelease_Linux /tmp/
+
+RUN conan install /tmp/conanfile.txt \
+                  --profile=/tmp/conanProfileRelease_Linux \
+                  --profile:b=/tmp/conanProfileRelease_Linux  \
+                  --output-folder=/tmp/build \
+                  --build=missing
