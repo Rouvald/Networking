@@ -15,15 +15,25 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL 3.0.0 REQUIRED) # 3.2.0
 
 set(SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/src/iobytes.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/HandshakeManager.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/HandshakeMessages.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/KeySchedule.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/TLSRecordLayer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACrypto.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCrypto.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/ECDHECrypto.cpp"
 )
 
 set(HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/include/iobytes.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/Utils.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsNetwork.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsCrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/HandshakeManager.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/HandshakeMessages.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/KeySchedule.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/TLSRecordLayer.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCrypto.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/ECDHECrypto.h"
@@ -35,6 +45,7 @@ add_library(${PROJECT_NAME} STATIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/utils/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/network/include"

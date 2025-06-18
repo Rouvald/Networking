@@ -27,14 +27,11 @@ namespace UtilsCrypto
         unsigned int len = EVP_MAX_MD_SIZE;
         std::vector<uint8_t> result(len);
 
-        HMAC(EVP_sha256(),
-            key.data(), key.size(),
-            data.data(), data.size(),
-            result.data(), &len);
+        HMAC(EVP_sha256(), key.data(), key.size(), data.data(), data.size(), result.data(), &len);
 
         result.resize(len);
         return result;
     }
-} // namespace UtilsCrypto
+}  // namespace UtilsCrypto
 
 #endif  // UTILSCRYPTO_H
