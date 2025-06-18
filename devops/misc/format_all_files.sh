@@ -10,6 +10,7 @@ declare -a paths=(
     "networklib"
     "client"
     "server"
+    "tests"
 )
 
 # check clang-format

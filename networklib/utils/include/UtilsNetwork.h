@@ -31,7 +31,7 @@ namespace UtilsNetwork
     }
     inline std::vector<uint8_t> read_vector(boost::asio::ip::tcp::socket& socket)
     {
-        uint32_t size {0};
+        uint32_t size{0};
         boost::asio::read(socket, boost::asio::buffer(&size, sizeof(size)));
         size = ntohl(size);
 
@@ -42,6 +42,6 @@ namespace UtilsNetwork
         }
         return data;
     }
-} // namespace UtilsNetwork
+}  // namespace UtilsNetwork
 
 #endif  // SHACRYPTO_H

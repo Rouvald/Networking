@@ -38,6 +38,11 @@ jobs:
         run: |
           docker build -f docker/Dockerfile.build -t rouvald/app_build .
 
+      - name: Run tests in container
+        run: |
+           docker run --rm rouvald/app_build \
+             /bin/bash -lc "cd /app/build_linux_Release && ctest --output-on-failure"
+
       - name: Extract binaries
         run: |
           docker create --name extract rouvald/app_build

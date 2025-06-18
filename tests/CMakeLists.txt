@@ -4,7 +4,9 @@ find_package(benchmark REQUIRED)
 find_package(GTest REQUIRED)
 
 set(SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_SHACrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_UtilsNetwork.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_UtilsCrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/test_Utils.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_RSACrypto.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_AESCrypto.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/test_ECDHECrypto.cpp"
