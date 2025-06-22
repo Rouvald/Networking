@@ -23,7 +23,16 @@ void TLSClient::run_handshake_and_send()
     UtilsNetwork::write_uint32(_socket, client_pub.size());
     boost::asio::write(_socket, boost::asio::buffer(client_pub));
 
+    _timer.stop();
+    _timer.print("Client START read from server");
+    _timer.start();
+
     const uint32_t server_pub_len{UtilsNetwork::read_uint32(_socket)};
+
+    _timer.stop();
+    _timer.print("Client END read from server");
+    _timer.start();
+
     std::vector<uint8_t> server_pub(server_pub_len);
     boost::asio::read(_socket, boost::asio::buffer(server_pub));
 
