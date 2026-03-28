@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.28)
 
 # setup conan profiles
-set(USE_CONAN "OFF" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
+# set(USE_CONAN "OFF" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
 
-if(USE_CONAN)
-    include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
-    setup_conan_profiles()
-endif()
+# if(USE_CONAN)
+#     include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
+#     setup_conan_profiles()
+# endif()
 
 # common settings
 set(VERSION_MAJOR 0)
@@ -19,8 +19,12 @@ project(networking VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 # setup base c++ params
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -fpermissive -fPIC -fmax-errors=5 ") # -pthread
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS}")
+
+# OPTIONS
+
+option(ENABLE_WERROR "Treat warnings as errors" OFF)
+option(ENABLE_SANITIZERS "Enable Address/Undefined sanitizers" OFF)
+option(ENABLE_TSAN "Enable Thread sanitizer (separate from ASan/UBSan)" OFF)
 
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)

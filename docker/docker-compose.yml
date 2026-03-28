@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.run
+      args:
+        ROLE: server
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./artifacts/server:/app/server
+    command: ["./server"]
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.run
+      args:
+        ROLE: client
+    volumes:
+      - ./artifacts/client:/app/client
+    command: ["./client"]
+    depends_on:
+      - server

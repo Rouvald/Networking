@@ -4,15 +4,17 @@ if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_STATIC_RUNTIME ON)
-set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS     ON)
+set(Boost_USE_DEBUG_LIBS     OFF)
+set(Boost_USE_RELEASE_LIBS    ON)
+set(Boost_USE_MULTITHREADED   ON)
+set(Boost_USE_STATIC_RUNTIME  ON)
 
-find_package(Boost 1.88.0 REQUIRED COMPONENTS thread json url system)
+find_package(Boost 1.88.0 REQUIRED COMPONENTS system)
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 
-find_package(OpenSSL 3.2.0 REQUIRED)
+find_package(OpenSSL 3.5.5 REQUIRED)
 
 set(SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/src/iobytes.cpp"
@@ -59,6 +61,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         OpenSSL::SSL
         OpenSSL::Crypto
 )
+
+enable_options(${PROJECT_NAME})
 
 # Windows networking requires winsock library when using Boost.Asio
 if (WIN32)

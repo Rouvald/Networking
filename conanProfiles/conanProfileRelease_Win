@@ -8,5 +8,5 @@ compiler.cppstd = 23
 build_type = Release
 
 [conf]
-tools.build:compiler_executables={"c": "C:/msys64/mingw64/bin/gcc.exe", "cpp": "C:/msys64/mingw64/bin/g++.exe"}
+tools.build:compiler_executables={"c": "C:/mingw64/bin/gcc.exe", "cpp": "C:/mingw64/bin/g++.exe"}
 tools.cmake.cmaketoolchain:generator = Ninja

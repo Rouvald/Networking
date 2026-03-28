@@ -1,4 +1,4 @@
-macro(setup_conan_profiles)
+function(setup_conan_profiles)
     set(PROFILE_PATH_Windows_Release "${CMAKE_CURRENT_SOURCE_DIR}/conanProfiles/conanProfileRelease_Win")
     set(PROFILE_PATH_Windows_Debug "${CMAKE_CURRENT_SOURCE_DIR}/conanProfiles/conanProfileDebug_Win")
     set(PROFILE_PATH_Linux_Release "${CMAKE_CURRENT_SOURCE_DIR}/conanProfiles/conanProfileRelease_Linux")
@@ -24,4 +24,53 @@ macro(setup_conan_profiles)
     set(CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_CONAN_PATH})
     set(CONAN_HOST_PROFILE "${CONAN_PROFILE}")
     set(CONAN_BUILD_PROFILE "${CONAN_PROFILE}")
-endmacro()
+endfunction()
+
+function(enable_options target_name)
+    # for fun check
+    if(NOT UNIX)
+        message(STATUS "enable_options(${target_name}) skipped: not UNIX platform")
+        return()
+    endif()
+
+    target_compile_options(${target_name} PRIVATE
+        -Wall      # def
+        -Wextra    #
+        -Wpedantic #
+        -Wshadow          # some convs
+        -Wconversion      #
+        -Wsign-conversion #
+        -Wdouble-promotion     # additional check
+        -Wformat=2             #
+        -Woverloaded-virtual   #
+        -Wimplicit-fallthrough #
+        -fno-omit-frame-pointer     # stack trace
+        -fno-optimize-sibling-calls #
+        -fstack-protector-strong # stack protect (test)
+    )
+
+    # runtime stl check
+    target_compile_definitions(${target_name} PRIVATE _GLIBCXX_ASSERTIONS)
+
+    # my death
+    if(ENABLE_WERROR)
+        target_compile_options(${target_name} PRIVATE -Werror)
+    endif()
+
+    # sanitizers
+    if(ENABLE_SANITIZERS AND NOT ENABLE_TSAN)
+        target_compile_options(${target_name} PRIVATE
+            -fsanitize=address,undefined
+            -fno-sanitize-recover=all
+        )
+        target_link_options(${target_name} PRIVATE -fsanitize=address,undefined)
+    endif()
+
+    if(ENABLE_TSAN)
+        target_compile_options(${target_name} PRIVATE -fsanitize=thread)
+        target_link_options(${target_name} PRIVATE -fsanitize=thread)
+    endif()
+
+    # linking
+    target_link_options(${target_name} PRIVATE -Wl,-z,defs)
+endfunction()

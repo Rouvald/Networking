@@ -1,0 +1,118 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "base_params",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/build/install-${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": true
+            }
+        },
+        {
+            "name": "setup_gcc",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_AR": "gcc-ar",
+                "CMAKE_RANLIB": "gcc-ranlib"
+            },
+            "inherits": "base_params"
+        },
+        {
+            "name": "release",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        },
+        {
+            "name": "debug",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        },
+        {
+            "name": "relwithdebinfo",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "release",
+            "hidden": false,
+            "configurePreset": "release",
+            "cleanFirst": true
+        },
+        {
+            "name": "debug",
+            "hidden": false,
+            "configurePreset": "debug",
+            "cleanFirst": true
+        },
+        {
+            "name": "relwithdebinfo",
+            "hidden": false,
+            "configurePreset": "relwithdebinfo",
+            "cleanFirst": true
+        }
+    ],
+    "testPresets": [],
+    "workflowPresets": [
+        {
+            "name": "release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "release"
+                },
+                {
+                    "type": "build",
+                    "name": "release"
+                }
+            ]
+        },
+        {
+            "name": "debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug"
+                },
+                {
+                    "type": "build",
+                    "name": "debug"
+                }
+            ]
+        },
+        {
+            "name": "relwithdebinfo",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "relwithdebinfo"
+                },
+                {
+                    "type": "build",
+                    "name": "relwithdebinfo"
+                }
+            ]
+        }
+    ]
+}

@@ -64,8 +64,8 @@ dkms.conf
 # CMake
 cmake-build-*/
 
-# conan
-CMake*Presets.json
+# builds
+build*/
 
 # QT
 *.user
@@ -75,3 +75,6 @@ CMake*Presets.json
 
 # artifacts
 /artifacts
+
+# logs dir
+.logs/

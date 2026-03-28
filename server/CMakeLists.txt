@@ -21,3 +21,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
         ${NETWORK_LIB_NAME}
 )
+
+enable_options(${PROJECT_NAME})
