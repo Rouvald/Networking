@@ -10,7 +10,7 @@ set(Boost_USE_RELEASE_LIBS    ON)
 set(Boost_USE_MULTITHREADED   ON)
 set(Boost_USE_STATIC_RUNTIME  ON)
 
-find_package(Boost 1.88.0 REQUIRED CONFIG COMPONENTS headers)
+find_package(Boost 1.87.0 REQUIRED CONFIG COMPONENTS headers)
 
 if(USE_CONAN)
     set(OPENSSL_USE_STATIC_LIBS TRUE)
@@ -21,7 +21,7 @@ else()
     else()
         set(OPENSSL_USE_STATIC_LIBS TRUE)
     endif()
-    find_package(OpenSSL 3.5.5 REQUIRED)
+        find_package(OpenSSL 3.5.5 REQUIRED)
 endif()
 
 set(SOURCES

@@ -22,4 +22,4 @@ openssl/*:no_dgram=True
 
 [generators]
 CMakeToolchain
-CMakeConfigDeps
+CMakeDeps
