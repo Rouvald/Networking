@@ -8,11 +8,11 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 set(Boost_USE_MULTITHREADED ON)
 
-find_package(Boost 1.87.0 REQUIRED COMPONENTS thread json url)
+find_package(Boost 1.88.0 REQUIRED COMPONENTS thread json url system)
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 
-find_package(OpenSSL 3.0.0 REQUIRED) # 3.2.0
+find_package(OpenSSL 3.2.0 REQUIRED)
 
 set(SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACrypto.cpp"
@@ -48,3 +48,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         OpenSSL::SSL
         OpenSSL::Crypto
 )
+
+# Windows networking requires winsock library when using Boost.Asio
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ws2_32)
+endif()

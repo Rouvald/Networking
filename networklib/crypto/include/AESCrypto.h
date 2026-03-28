@@ -6,6 +6,7 @@
 
 constexpr uint8_t AES_KEY_SIZE{32};
 constexpr uint8_t AES_IV_KEY_SIZE{12};
+constexpr uint8_t GCM_TAG_SIZE{16};
 
 class AESCrypto
 {
@@ -25,6 +26,8 @@ public:
 
 private:
     std::vector<uint8_t> _key;
+
+    static void handle_errors();
 };
 
 #endif  // AESCRYPTO_H

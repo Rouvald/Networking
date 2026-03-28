@@ -15,6 +15,22 @@ RSACrypto::RSACrypto()
     generate_key();
 }
 
+RSACrypto::RSACrypto(RSACrypto&& other) noexcept : _key(other._key)
+{
+    other._key = nullptr;
+}
+
+RSACrypto& RSACrypto::operator=(RSACrypto&& other) noexcept
+{
+    if (this != &other)
+    {
+        EVP_PKEY_free(_key);
+        _key = other._key;
+        other._key = nullptr;
+    }
+    return *this;
+}
+
 RSACrypto::~RSACrypto()
 {
     if (_key != nullptr)

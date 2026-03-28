@@ -1,5 +1,5 @@
-#ifndef SHACRYPTO_H
-#define SHACRYPTO_H
+#ifndef UTILSNETWORK_H
+#define UTILSNETWORK_H
 
 #include <cstdint>
 #include <vector>
@@ -44,4 +44,4 @@ namespace UtilsNetwork
     }
 }  // namespace UtilsNetwork
 
-#endif  // SHACRYPTO_H
+#endif  // UTILSNETWORK_H

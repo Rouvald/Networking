@@ -2,7 +2,7 @@
 #define RSACRYPTO_H
 
 #include <cstdint>
-#include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <vector>
 
 class RSACrypto
@@ -11,10 +11,10 @@ public:
     RSACrypto();
     ~RSACrypto();
 
-    RSACrypto(const RSACrypto&) = default;
-    RSACrypto& operator=(const RSACrypto&) = default;
-    RSACrypto(RSACrypto&&) = default;
-    RSACrypto& operator=(RSACrypto&&) = default;
+    RSACrypto(const RSACrypto&) = delete;
+    RSACrypto& operator=(const RSACrypto&) = delete;
+    RSACrypto(RSACrypto&& other) noexcept;
+    RSACrypto& operator=(RSACrypto&& other) noexcept;
 
     EVP_PKEY* get_key() const;
 

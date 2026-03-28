@@ -11,10 +11,10 @@ public:
     ECDHECrypto();
     ~ECDHECrypto();
 
-    ECDHECrypto(const ECDHECrypto&) = default;
-    ECDHECrypto& operator=(const ECDHECrypto&) = default;
-    ECDHECrypto(ECDHECrypto&&) = default;
-    ECDHECrypto& operator=(ECDHECrypto&&) = default;
+    ECDHECrypto(const ECDHECrypto&) = delete;
+    ECDHECrypto& operator=(const ECDHECrypto&) = delete;
+    ECDHECrypto(ECDHECrypto&& other) noexcept;
+    ECDHECrypto& operator=(ECDHECrypto&& other) noexcept;
 
     EVP_PKEY* get_key() const;
     std::vector<uint8_t> get_public_key_der() const;
@@ -24,6 +24,7 @@ private:
     EVP_PKEY* _key{nullptr};
 
     void generate_key();
+    static void handle_errors();
 };
 
 #endif  // ECDHECRYPTO_H
