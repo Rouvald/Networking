@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.28)
 
 # setup conan profiles
-# set(USE_CONAN "OFF" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
+set(USE_CONAN "ON" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
 
-# if(USE_CONAN)
-#     include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
-#     setup_conan_profiles()
-# endif()
+# for hepler functions
+include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
+
+if(USE_CONAN)
+    setup_conan_profiles()
+endif()
 
 # common settings
 set(VERSION_MAJOR 0)
@@ -26,7 +28,9 @@ option(ENABLE_WERROR "Treat warnings as errors" OFF)
 option(ENABLE_SANITIZERS "Enable Address/Undefined sanitizers" OFF)
 option(ENABLE_TSAN "Enable Thread sanitizer (separate from ASan/UBSan)" OFF)
 
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+if(USE_CONAN)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+endif()
 set(BUILD_SHARED_LIBS OFF)
 # set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")

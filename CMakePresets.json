@@ -23,6 +23,13 @@
             "inherits": "base_params"
         },
         {
+            "name": "with_tests",
+            "hidden": true,
+            "cacheVariables": {
+                "NETWORKING_TESTS": "ON"
+            }
+        },
+        {
             "name": "release",
             "hidden": false,
             "cacheVariables": {
@@ -30,6 +37,14 @@
             },
             "inherits": [
                 "setup_gcc"
+            ]
+        },
+        {
+            "name": "release-tests",
+            "hidden": false,
+            "inherits": [
+                "release",
+                "with_tests"
             ]
         },
         {
@@ -43,10 +58,67 @@
             ]
         },
         {
+            "name": "debug-tests",
+            "hidden": false,
+            "inherits": [
+                "debug",
+                "with_tests"
+            ]
+        },
+        {
             "name": "relwithdebinfo",
             "hidden": false,
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        },
+        {
+            "name": "release-noconan",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "USE_CONAN": "OFF"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        },
+        {
+            "name": "release-noconan-tests",
+            "hidden": false,
+            "inherits": [
+                "release-noconan",
+                "with_tests"
+            ]
+        },
+        {
+            "name": "debug-noconan",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "USE_CONAN": "OFF"
+            },
+            "inherits": [
+                "setup_gcc"
+            ]
+        },
+        {
+            "name": "debug-noconan-tests",
+            "hidden": false,
+            "inherits": [
+                "debug-noconan",
+                "with_tests"
+            ]
+        },
+        {
+            "name": "relwithdebinfo-noconan",
+            "hidden": false,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "USE_CONAN": "OFF"
             },
             "inherits": [
                 "setup_gcc"
@@ -61,15 +133,57 @@
             "cleanFirst": true
         },
         {
+            "name": "release-tests",
+            "hidden": false,
+            "configurePreset": "release-tests",
+            "cleanFirst": true
+        },
+        {
             "name": "debug",
             "hidden": false,
             "configurePreset": "debug",
             "cleanFirst": true
         },
         {
+            "name": "debug-tests",
+            "hidden": false,
+            "configurePreset": "debug-tests",
+            "cleanFirst": true
+        },
+        {
             "name": "relwithdebinfo",
             "hidden": false,
             "configurePreset": "relwithdebinfo",
+            "cleanFirst": true
+        },
+        {
+            "name": "release-noconan",
+            "hidden": false,
+            "configurePreset": "release-noconan",
+            "cleanFirst": true
+        },
+        {
+            "name": "release-noconan-tests",
+            "hidden": false,
+            "configurePreset": "release-noconan-tests",
+            "cleanFirst": true
+        },
+        {
+            "name": "debug-noconan",
+            "hidden": false,
+            "configurePreset": "debug-noconan",
+            "cleanFirst": true
+        },
+        {
+            "name": "debug-noconan-tests",
+            "hidden": false,
+            "configurePreset": "debug-noconan-tests",
+            "cleanFirst": true
+        },
+        {
+            "name": "relwithdebinfo-noconan",
+            "hidden": false,
+            "configurePreset": "relwithdebinfo-noconan",
             "cleanFirst": true
         }
     ],
@@ -89,6 +203,19 @@
             ]
         },
         {
+            "name": "release-tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "release-tests"
+                },
+                {
+                    "type": "build",
+                    "name": "release-tests"
+                }
+            ]
+        },
+        {
             "name": "debug",
             "steps": [
                 {
@@ -102,6 +229,19 @@
             ]
         },
         {
+            "name": "debug-tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug-tests"
+                },
+                {
+                    "type": "build",
+                    "name": "debug-tests"
+                }
+            ]
+        },
+        {
             "name": "relwithdebinfo",
             "steps": [
                 {
@@ -111,6 +251,71 @@
                 {
                     "type": "build",
                     "name": "relwithdebinfo"
+                }
+            ]
+        },
+        {
+            "name": "release-noconan",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "release-noconan"
+                },
+                {
+                    "type": "build",
+                    "name": "release-noconan"
+                }
+            ]
+        },
+        {
+            "name": "release-noconan-tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "release-noconan-tests"
+                },
+                {
+                    "type": "build",
+                    "name": "release-noconan-tests"
+                }
+            ]
+        },
+        {
+            "name": "debug-noconan",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug-noconan"
+                },
+                {
+                    "type": "build",
+                    "name": "debug-noconan"
+                }
+            ]
+        },
+        {
+            "name": "debug-noconan-tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "debug-noconan-tests"
+                },
+                {
+                    "type": "build",
+                    "name": "debug-noconan-tests"
+                }
+            ]
+        },
+        {
+            "name": "relwithdebinfo-noconan",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "relwithdebinfo-noconan"
+                },
+                {
+                    "type": "build",
+                    "name": "relwithdebinfo-noconan"
                 }
             ]
         }

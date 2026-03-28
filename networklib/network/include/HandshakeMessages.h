@@ -23,6 +23,13 @@ enum HandshakeType : uint8_t
     finished = 20
 };
 
+enum class SignatureScheme : uint16_t
+{
+    rsa_pkcs1_sha256 = 0x0401,
+    ecdsa_secp256r1_sha256 = 0x0403,
+    rsa_pss_rsae_sha256 = 0x0804
+};
+
 struct KeyShareEntry
 {
     uint16_t group;
@@ -110,6 +117,6 @@ struct CertificateVerify
     HandshakeMessage to_message() const;
 };
 
-static KeyShareEntry parse_key_share(const std::vector<uint8_t>& ext_buf);
+KeyShareEntry parse_key_share(const std::vector<uint8_t>& ext_buf);
 
 #endif  // HANDSHAKEMESSAGES_H

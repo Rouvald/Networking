@@ -2,6 +2,22 @@
 #include <iobytes.h>
 #include <stdexcept>
 
+namespace
+{
+std::vector<uint8_t> extract_handshake_body(const std::vector<uint8_t>& buf, HandshakeType expected_type)
+{
+    if (buf.size() >= 4)
+    {
+        const auto parsed = HandshakeMessage::deserialize(buf);
+        if (parsed.msg_type == expected_type && parsed.body.size() + 4 == buf.size())
+        {
+            return parsed.body;
+        }
+    }
+    return buf;
+}
+}
+
 std::vector<uint8_t> HandshakeMessage::serialize() const
 {
     ByteWriter w;
@@ -150,7 +166,7 @@ void ExtensionWriter::append_length_prefixed(const std::vector<uint8_t>& data)
     extensions_.insert(extensions_.end(), data.begin(), data.end());
 }
 
-static KeyShareEntry parse_key_share(const std::vector<uint8_t>& ext_buf)
+KeyShareEntry parse_key_share(const std::vector<uint8_t>& ext_buf)
 {
     ByteReader r(ext_buf);
     while (r.bytes_remaining() >= 4)
@@ -172,4 +188,74 @@ static KeyShareEntry parse_key_share(const std::vector<uint8_t>& ext_buf)
         }
     }
     throw std::runtime_error("KeyShare extension not found");
+}
+
+EncryptedExtensions EncryptedExtensions::parse_body(const std::vector<uint8_t>& buf)
+{
+    ByteReader reader(extract_handshake_body(buf, HandshakeType::encrypted_extensions));
+    EncryptedExtensions message;
+    const uint16_t length = reader.read_uint16();
+    message.extensions = reader.read_bytes(length);
+    return message;
+}
+
+HandshakeMessage EncryptedExtensions::to_message() const
+{
+    ByteWriter writer;
+    writer.write_uint16(static_cast<uint16_t>(extensions.size()));
+    writer.write_bytes(extensions);
+    return HandshakeMessage{HandshakeType::encrypted_extensions, writer.get_buffer()};
+}
+
+Certificate Certificate::parse_body(const std::vector<uint8_t>& buf)
+{
+    ByteReader reader(extract_handshake_body(buf, HandshakeType::certificate));
+    Certificate message;
+
+    const uint8_t context_length = reader.read_uint8();
+    reader.skip(context_length);
+
+    ByteReader certs_reader(reader.read_bytes(reader.read_uint24()));
+    while (certs_reader.has_remaining())
+    {
+        message.cert_list.push_back(certs_reader.read_bytes(certs_reader.read_uint24()));
+        certs_reader.skip(certs_reader.read_uint16());
+    }
+
+    return message;
+}
+
+HandshakeMessage Certificate::to_message() const
+{
+    ByteWriter certs_writer;
+    for (const auto& cert : cert_list)
+    {
+        certs_writer.write_uint24(static_cast<uint32_t>(cert.size()));
+        certs_writer.write_bytes(cert);
+        certs_writer.write_uint16(0);
+    }
+
+    ByteWriter writer;
+    writer.write_uint8(0);
+    writer.write_uint24(static_cast<uint32_t>(certs_writer.get_buffer().size()));
+    writer.write_bytes(certs_writer.get_buffer());
+    return HandshakeMessage{HandshakeType::certificate, writer.get_buffer()};
+}
+
+CertificateVerify CertificateVerify::parse_body(const std::vector<uint8_t>& buf)
+{
+    ByteReader reader(extract_handshake_body(buf, HandshakeType::certificate_verify));
+    CertificateVerify message;
+    message.scheme = static_cast<SignatureScheme>(reader.read_uint16());
+    message.signature = reader.read_bytes(reader.read_uint16());
+    return message;
+}
+
+HandshakeMessage CertificateVerify::to_message() const
+{
+    ByteWriter writer;
+    writer.write_uint16(static_cast<uint16_t>(scheme));
+    writer.write_uint16(static_cast<uint16_t>(signature.size()));
+    writer.write_bytes(signature);
+    return HandshakeMessage{HandshakeType::certificate_verify, writer.get_buffer()};
 }

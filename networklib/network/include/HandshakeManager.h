@@ -12,7 +12,9 @@ using btcp = boost::asio::ip::tcp;
 class HandshakeManager
 {
 public:
-    HandshakeManager(TLSRecordLayer& record, const std::vector<uint8_t>& psk = {}) : record_(record), psk_(psk) {}
+    HandshakeManager(btcp::socket& socket, TLSRecordLayer& record, const std::vector<uint8_t>& psk = {})
+        : socket_(socket), record_(record), psk_(psk)
+    {}
 
     void do_client_handshake();
 

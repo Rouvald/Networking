@@ -1,58 +1,66 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-build_type="Release"
-build_dir="build"
-cmake_generator="Ninja"
-conan_profile_dir="conanProfiles"
-conan_profile="conanProfileRelease"
+build_type="release"
 use_conan="ON"
 with_tests="OFF"
 
+print_help() {
+  cat <<'EOF'
+Usage: ./compile.sh [options]
+
+Options:
+  -d, --debug       Build with the Debug workflow preset
+  -r, --release     Build with the Release workflow preset
+  --no-conan        Use local dependencies instead of Conan
+  --with-tests      Enable test targets
+  -h, --help        Show this help
+
+Examples:
+  ./compile.sh
+  ./compile.sh -d
+  ./compile.sh --no-conan
+  ./compile.sh -d --no-conan --with-tests
+EOF
+}
+
 while [[ "$#" -gt 0 ]]; do
-  case $1 in
-    -d ) build_type="Debug" ;;
-    -r ) build_type="Release" ;;
-    --no-conan ) use_conan="OFF" ;;
-    --with-tests ) with_tests="ON" ;;
-    *) echo "Unknown arg: $1"; exit 1 ;;
+  case "$1" in
+    -d|--debug)
+      build_type="debug"
+      ;;
+    -r|--release)
+      build_type="release"
+      ;;
+    --no-conan)
+      use_conan="OFF"
+      ;;
+    --with-tests)
+      with_tests="ON"
+      ;;
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown arg: $1" >&2
+      print_help
+      exit 1
+      ;;
   esac
   shift
 done
 
-os_name="$(uname -s)"
+workflow_preset="${build_type}"
 
-if [[ "$os_name" == "Linux" ]]; 
-then
-    build_dir="build_linux_${build_type}"
-    cmake_generator="Ninja"
-    conan_profile="conanProfile${build_type}_Linux"
-elif [[ "$os_name" == "MINGW64_NT"* || "$os_name" == "MSYS_NT"* ]]; 
-then
-    build_dir="build_win_${build_type}"
-    cmake_generator="Ninja"
-    conan_profile="conanProfile${build_type}_Win"
+if [[ "${use_conan}" == "OFF" ]]; then
+  workflow_preset="${workflow_preset}-noconan"
 fi
 
-rm -rf "${build_dir}"
-mkdir "${build_dir}"
-
-if [[ "$use_conan" == "ON" ]]; then
-    conan install . \
-        --profile="${conan_profile_dir}/${conan_profile}" \
-        --profile:b="${conan_profile_dir}/${conan_profile}" \
-        --output-folder="${build_dir}" \
-        --build=missing
+if [[ "${with_tests}" == "ON" ]]; then
+  workflow_preset="${workflow_preset}-tests"
 fi
 
-cmake -DCMAKE_BUILD_TYPE:STRING=${build_type} \
-      -DCMAKE_CXX_COMPILER=g++ \
-      -S "." \
-      -B "${build_dir}" \
-      -G "${cmake_generator}" \
-      -DUSE_CONAN=${use_conan} \
-      -DNETWORKING_TESTS=${with_tests}
-
-cmake --build "${build_dir}" --config ${build_type} --target clean -j 18
-cmake --build "${build_dir}" --config ${build_type} --target all -j 18
+echo "Running CMake workflow preset: ${workflow_preset}"
+cmake --workflow --preset "${workflow_preset}"

@@ -10,11 +10,19 @@ set(Boost_USE_RELEASE_LIBS    ON)
 set(Boost_USE_MULTITHREADED   ON)
 set(Boost_USE_STATIC_RUNTIME  ON)
 
-find_package(Boost 1.88.0 REQUIRED COMPONENTS system)
+find_package(Boost 1.88.0 REQUIRED CONFIG COMPONENTS headers)
 
-set(OPENSSL_USE_STATIC_LIBS TRUE)
-
-find_package(OpenSSL 3.5.5 REQUIRED)
+if(USE_CONAN)
+    set(OPENSSL_USE_STATIC_LIBS TRUE)
+    find_package(OpenSSL 3.5.5 REQUIRED CONFIG)
+else()
+    if(WIN32)
+        set(OPENSSL_USE_STATIC_LIBS FALSE)
+    else()
+        set(OPENSSL_USE_STATIC_LIBS TRUE)
+    endif()
+    find_package(OpenSSL 3.5.5 REQUIRED)
+endif()
 
 set(SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/src/iobytes.cpp"
@@ -54,13 +62,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        Boost::thread
-        Boost::json
-        Boost::url
-        Boost::system
+        Boost::headers
         OpenSSL::SSL
         OpenSSL::Crypto
 )
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC BOOST_ERROR_CODE_HEADER_ONLY)
 
 enable_options(${PROJECT_NAME})
 
