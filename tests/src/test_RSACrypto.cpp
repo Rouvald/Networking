@@ -1,4 +1,4 @@
-#include "RSACrypto.h"
+#include "crypto/rsacrypto.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -6,7 +6,7 @@
 TEST(RSACryptoTest, ConstructorGeneratesKey)
 {
     RSACrypto crypto;
-    EXPECT_NE(crypto.get_key(), nullptr);
+    EXPECT_NE(crypto.getKey(), nullptr);
 }
 
 // @note: Test signing produces a non-empty signature and verification succeeds

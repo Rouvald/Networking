@@ -1,61 +1,56 @@
-#include "TLSClient.h"
-#include <AESCrypto.h>
-#include <UtilsCrypto.h>
+#include "tlsclient.h"
+#include "crypto/aescrypto.h"
+#include "utils/functions.h"
 #include <boost/asio.hpp>
-#include <cstdint>
-#include <iostream>
 #include <openssl/evp.h>
 #include <openssl/x509.h>
-#include <string>
-#include <vector>
 
-TLSClient::TLSClient(boost::asio::io_context& io_context, const std::string& host, uint16_t port) : _socket(io_context)
+TLSClient::TLSClient(boost::asio::io_context& ioContext, const std::string& host, uint16_t port) : _socket(ioContext)
 {
-    btcp::resolver resolver(io_context);
+    btcp::resolver resolver(ioContext);
     boost::asio::connect(_socket, resolver.resolve(host, std::to_string(port)));
 }
 
-void TLSClient::run_handshake_and_send()
+void TLSClient::runHandshakeAndSend()
 {
     _timer.start();
 
-    std::vector<uint8_t> client_pub{_client_ecdh.get_public_key_der()};
-    UtilsNetwork::write_uint32(_socket, client_pub.size());
-    boost::asio::write(_socket, boost::asio::buffer(client_pub));
+    std::vector<uint8_t> clientPub{_clientEcdh.getPublicKeyDer()};
+    functions::network::writeUint32(_socket, static_cast<uint32_t>(clientPub.size()));
+    boost::asio::write(_socket, boost::asio::buffer(clientPub));
 
     _timer.stop();
-    _timer.print("Client START read from server");
+    std::cout << "Client START read from server: " << _timer.lastElapsedMs() << " ms\n";
     _timer.start();
 
-    const uint32_t server_pub_len{UtilsNetwork::read_uint32(_socket)};
+    const uint32_t serverPubLength{functions::network::readUint32(_socket)};
 
     _timer.stop();
-    _timer.print("Client END read from server");
+    std::cout << "Client END read from server: " << _timer.lastElapsedMs() << " ms\n";
     _timer.start();
 
-    std::vector<uint8_t> server_pub(server_pub_len);
-    boost::asio::read(_socket, boost::asio::buffer(server_pub));
+    std::vector<uint8_t> serverPub(serverPubLength);
+    boost::asio::read(_socket, boost::asio::buffer(serverPub));
 
-    EVP_PKEY* server_key{UtilsCrypto::d2i_PUBKEY_from_vector(server_pub)};
-    const std::vector<uint8_t> shared_secret{_client_ecdh.compute_shared_secret(server_key)};
-    EVP_PKEY_free(server_key);
-    auto aes_key{UtilsCrypto::sha256(shared_secret)};
+    EVP_PKEY* serverKey{functions::crypto::d2iPubKeyFromVector(serverPub)};
+    const std::vector<uint8_t> sharedSecret{_clientEcdh.computeSharedSecret(serverKey)};
+    EVP_PKEY_free(serverKey);
+    auto aesKey{functions::crypto::sha256(sharedSecret)};
 
-    AESCrypto aes(aes_key);
+    AESCrypto aes(aesKey);
 
     _timer.stop();
-    _timer.print("Client handshake");
+    std::cout << "Client handshake: " << _timer.lastElapsedMs() << " ms\n";
 
-    const std::string msg{"Hello from client! Add some useless info for testing"};
-    std::vector<uint8_t> ivKey{AESCrypto::generate_iv()};
+    const std::string message{"Hello from client! Add some useless info for testing"};
+    std::vector<uint8_t> ivKey{AESCrypto::generateIv()};
     std::vector<uint8_t> tag;
-    std::vector<uint8_t> ciphertext{aes.encrypt(std::vector<uint8_t>(msg.begin(), msg.end()), ivKey, tag)};
+    std::vector<uint8_t> ciphertext{aes.encrypt(std::vector<uint8_t>(message.begin(), message.end()), ivKey, tag)};
 
     boost::asio::write(_socket, boost::asio::buffer(ivKey));
-
     boost::asio::write(_socket, boost::asio::buffer(tag));
 
-    UtilsNetwork::write_uint32(_socket, ciphertext.size());
+    functions::network::writeUint32(_socket, static_cast<uint32_t>(ciphertext.size()));
     boost::asio::write(_socket, boost::asio::buffer(ciphertext));
 
     std::cout << "Encrypted message sent to server." << '\n';

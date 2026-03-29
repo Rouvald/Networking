@@ -1,10 +1,9 @@
 #ifndef TLSSERVER_H
 #define TLSSERVER_H
 
-#include <RSACrypto.h>
-#include <ECDHECrypto.h>
-#include <UtilsNetwork.h>
-#include <Utils.h>
+#include "crypto/rsacrypto.h"
+#include "crypto/ecdhecrypto.h"
+#include "utils/types.h"
 #include <boost/asio.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ts/buffer.hpp>
@@ -24,22 +23,22 @@ public:
         HANDSHAKE_COMPLETE
     };
 
-    TLSServer(boost::asio::io_context& io_context, const btcp::endpoint& endpoint);
+    TLSServer(boost::asio::io_context& ioContext, const btcp::endpoint& endpoint);
 
-    void start_accept();
+    void startAccept();
 
 private:
-    void handle_handshake(btcp::socket& socket);
-    void process_client_hello(btcp::socket& socket);
-    void send_server_hello(btcp::socket& socket);
-    void process_client_finished(btcp::socket& socket);
+    void handleHandshake(btcp::socket& socket);
+    void processClientHello(btcp::socket& socket);
+    void sendServerHello(btcp::socket& socket);
+    void processClientFinished(btcp::socket& socket);
 
     btcp::acceptor _acceptor;
     RSACrypto _rsa;
-    ECDHECrypto _server_ecdh;
-    Utils::Timer _timer;
-    HandshakeState _handshake_state;
-    std::vector<uint8_t> _client_public_key;
+    ECDHECrypto _serverEcdh;
+    types::debug::Timer _timer;
+    HandshakeState _handshakeState;
+    std::vector<uint8_t> _clientPublicKey;
 };
 
 #endif  // TLSSERVER_H

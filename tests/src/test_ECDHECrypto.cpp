@@ -1,4 +1,4 @@
-#include "ECDHECrypto.h"
+#include "crypto/ecdhecrypto.h"
 #include <gtest/gtest.h>
 #include <openssl/evp.h>
 #include <vector>
@@ -7,15 +7,15 @@
 TEST(ECDHECryptoTest, ConstructorGeneratesKey)
 {
     ECDHECrypto crypto;
-    EXPECT_NE(crypto.get_key(), nullptr);
+    EXPECT_NE(crypto.getKey(), nullptr);
 }
 
 // @note: Test get_public_key_der returns valid DER encoding and is consistent
 TEST(ECDHECryptoTest, PublicKeyDerFormatAndConsistency)
 {
     ECDHECrypto crypto;
-    auto der1 = crypto.get_public_key_der();
-    auto der2 = crypto.get_public_key_der();
+    auto der1 = crypto.getPublicKeyDer();
+    auto der2 = crypto.getPublicKeyDer();
     EXPECT_GT(der1.size(), 0);
     EXPECT_EQ(der1, der2);
     EXPECT_EQ(der1[0], 0x30);
@@ -26,11 +26,11 @@ TEST(ECDHECryptoTest, ComputeSharedSecretSymmetric)
 {
     ECDHECrypto alice;
     ECDHECrypto bob;
-    EVP_PKEY* aliceKey = alice.get_key();
-    EVP_PKEY* bobKey = bob.get_key();
+    EVP_PKEY* aliceKey = alice.getKey();
+    EVP_PKEY* bobKey = bob.getKey();
 
-    auto secretAB = alice.compute_shared_secret(bobKey);
-    auto secretBA = bob.compute_shared_secret(aliceKey);
+    auto secretAB = alice.computeSharedSecret(bobKey);
+    auto secretBA = bob.computeSharedSecret(aliceKey);
 
     EXPECT_GT(secretAB.size(), 0);
     EXPECT_EQ(secretAB, secretBA);
@@ -41,10 +41,10 @@ TEST(ECDHECryptoTest, RepeatedSharedSecretConsistency)
 {
     ECDHECrypto alice;
     ECDHECrypto bob;
-    EVP_PKEY* bobKey = bob.get_key();
+    EVP_PKEY* bobKey = bob.getKey();
 
-    auto secret1 = alice.compute_shared_secret(bobKey);
-    auto secret2 = alice.compute_shared_secret(bobKey);
+    auto secret1 = alice.computeSharedSecret(bobKey);
+    auto secret2 = alice.computeSharedSecret(bobKey);
 
     EXPECT_EQ(secret1, secret2);
 }
@@ -53,6 +53,6 @@ TEST(ECDHECryptoTest, RepeatedSharedSecretConsistency)
 TEST(ECDHECryptoTest, ComputeSharedSecretNullPeerKeyReturnsEmpty)
 {
     ECDHECrypto crypto;
-    auto secret = crypto.compute_shared_secret(nullptr);
+    auto secret = crypto.computeSharedSecret(nullptr);
     EXPECT_TRUE(secret.empty());
 }

@@ -1,4 +1,4 @@
-#include "TLSClient.h"
+#include "tlsclient.h"
 #include <boost/asio/io_context.hpp>
 #include <cstdint>
 #include <cstdlib>
@@ -17,9 +17,9 @@ int32_t mainThread(int32_t argc, char* argv[])
     try
     {
         std::cout << "Start client" << '\n';
-        boost::asio::io_context io_context;
-        TLSClient client(io_context, ipAddr, 52488);
-        client.run_handshake_and_send();
+        boost::asio::io_context ioContext;
+        TLSClient client(ioContext, ipAddr, 52488);
+        client.runHandshakeAndSend();
     }
     catch (const std::exception& e)
     {

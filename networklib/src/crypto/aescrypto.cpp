@@ -1,26 +1,24 @@
-#include <AESCrypto.h>
-#include <cstdint>
-#include <iostream>
+#include "crypto/aescrypto.h"
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
-#include <vector>
+#include <iostream>
 
 AESCrypto::AESCrypto(const std::vector<uint8_t>& key) : _key(key)
 {
-    if (_key.size() != AES_KEY_SIZE)
+    if (_key.size() != types::vars::AES_KEY_SIZE)
     {
-        std::cerr << "AES key must be 256 bits (32 bytes)" << '\n';
+        std::cerr << "AES key must be 256 bits (32 bytes)" << std::endl;
         abort();
     }
 }
 
-std::vector<uint8_t> AESCrypto::generate_iv()
+std::vector<uint8_t> AESCrypto::generateIv()
 {
-    std::vector<uint8_t> ivKey(AES_IV_KEY_SIZE);
+    std::vector<uint8_t> ivKey(types::vars::AES_IV_KEY_SIZE);
     if (RAND_bytes(ivKey.data(), static_cast<int32_t>(ivKey.size())) != 1)
     {
-        handle_errors();
+        handleErrors();
     }
     return ivKey;
 }
@@ -30,7 +28,7 @@ std::vector<uint8_t> AESCrypto::encrypt(const std::vector<uint8_t>& plaintext, c
     EVP_CIPHER_CTX* ctx{EVP_CIPHER_CTX_new()};
     if (ctx == nullptr)
     {
-        handle_errors();
+        handleErrors();
     }
 
     std::vector<uint8_t> ciphertext(plaintext.size());
@@ -42,22 +40,22 @@ std::vector<uint8_t> AESCrypto::encrypt(const std::vector<uint8_t>& plaintext, c
         EVP_EncryptUpdate(ctx, ciphertext.data(), &len, plaintext.data(), static_cast<int32_t>(plaintext.size())) <= 0)
     {
         EVP_CIPHER_CTX_free(ctx);
-        handle_errors();
+        handleErrors();
     }
 
     int32_t ciphertext_len{len};
     if (EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len) <= 0)
     {
         EVP_CIPHER_CTX_free(ctx);
-        handle_errors();
+        handleErrors();
     }
     ciphertext_len += len;
 
-    tag.resize(GCM_TAG_SIZE);
-    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, GCM_TAG_SIZE, tag.data()) <= 0)
+    tag.resize(types::vars::GCM_TAG_SIZE);
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, types::vars::GCM_TAG_SIZE, tag.data()) <= 0)
     {
         EVP_CIPHER_CTX_free(ctx);
-        handle_errors();
+        handleErrors();
     }
 
     EVP_CIPHER_CTX_free(ctx);
@@ -71,7 +69,7 @@ std::vector<uint8_t> AESCrypto::decrypt(
     EVP_CIPHER_CTX* ctx{EVP_CIPHER_CTX_new()};
     if (ctx == nullptr)
     {
-        handle_errors();
+        handleErrors();
     }
 
     std::vector<uint8_t> plaintext(ciphertext.size());
@@ -83,15 +81,15 @@ std::vector<uint8_t> AESCrypto::decrypt(
         EVP_DecryptUpdate(ctx, plaintext.data(), &len, ciphertext.data(), static_cast<int32_t>(ciphertext.size())) <= 0)
     {
         EVP_CIPHER_CTX_free(ctx);
-        handle_errors();
+        handleErrors();
     }
 
     int32_t plaintext_len{len};
 
-    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, GCM_TAG_SIZE, const_cast<uint8_t*>(tag.data())) <= 0)
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, types::vars::GCM_TAG_SIZE, const_cast<uint8_t*>(tag.data())) <= 0)
     {
         EVP_CIPHER_CTX_free(ctx);
-        handle_errors();
+        handleErrors();
     }
 
     if (EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len) <= 0)
@@ -106,7 +104,7 @@ std::vector<uint8_t> AESCrypto::decrypt(
     return plaintext;
 }
 
-void AESCrypto::handle_errors()
+void AESCrypto::handleErrors()
 {
     ERR_print_errors_fp(stderr);
     abort();

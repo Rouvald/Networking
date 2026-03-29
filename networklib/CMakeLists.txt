@@ -25,28 +25,26 @@ else()
 endif()
 
 set(SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/src/iobytes.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/HandshakeManager.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/HandshakeMessages.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/KeySchedule.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/src/TLSRecordLayer.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/RSACrypto.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/AESCrypto.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/src/ECDHECrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/utils/types.cpp" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/network/handshakemanager.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/network/handshakemessages.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/network/keyschedule.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/network/tlsrecordlayer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/crypto/rsacrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/crypto/aescrypto.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/crypto/ecdhecrypto.cpp"
 )
 
 set(HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/include/iobytes.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/Utils.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsNetwork.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/utils/include/UtilsCrypto.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/HandshakeManager.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/HandshakeMessages.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/KeySchedule.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/network/include/TLSRecordLayer.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/RSACrypto.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/AESCrypto.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include/ECDHECrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/utils/types.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/utils/functions.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/network/handshakemanager.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/network/handshakemessages.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/network/keyschedule.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/network/tlsrecordlayer.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto/rsacrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto/aescrypto.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/crypto/ecdhecrypto.h"
 )
 
 add_library(${PROJECT_NAME} STATIC
@@ -55,10 +53,7 @@ add_library(${PROJECT_NAME} STATIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/datatypes/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/utils/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/crypto/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/network/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC

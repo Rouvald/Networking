@@ -1,20 +1,16 @@
 #ifndef TLSCLIENT_H
 #define TLSCLIENT_H
 
-#include <ECDHECrypto.h>
-#include <RSACrypto.h>
-#include <UtilsNetwork.h>
-#include <Utils.h>
+#include "crypto/ecdhecrypto.h"
+#include "crypto/rsacrypto.h"
+#include "utils/types.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <cstdint>
 #include <string>
-
-using btcp = boost::asio::ip::tcp;
-
 class TLSClient
 {
 public:
-    TLSClient(boost::asio::io_context& io_context, const std::string& host, uint16_t port);
+    TLSClient(boost::asio::io_context& ioContext, const std::string& host, uint16_t port);
     ~TLSClient() = default;
 
     TLSClient(const TLSClient&) = default;
@@ -22,14 +18,14 @@ public:
     TLSClient(TLSClient&&) = default;
     TLSClient& operator=(TLSClient&&) noexcept = default;
 
-    void run_handshake_and_send();
+    void runHandshakeAndSend();
 
 private:
     btcp::socket _socket;
     RSACrypto _rsa;
-    ECDHECrypto _client_ecdh;
+    ECDHECrypto _clientEcdh;
 
-    Utils::Timer _timer;
+    types::debug::Timer _timer;
 };
 
 #endif  // TLSCLIENT_H

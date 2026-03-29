@@ -16,7 +16,7 @@ public:
     RSACrypto(RSACrypto&& other) noexcept;
     RSACrypto& operator=(RSACrypto&& other) noexcept;
 
-    EVP_PKEY* get_key() const;
+    EVP_PKEY* getKey() const;
 
     std::vector<uint8_t> sign(const std::vector<uint8_t>& data);
     bool verify(const std::vector<uint8_t>& data, const std::vector<uint8_t>& signature);
@@ -24,8 +24,8 @@ public:
 private:
     EVP_PKEY* _key{nullptr};
 
-    void generate_key();
-    static void handle_errors();
+    void generateKey();
+    static void handleErrors();
 };
 
 #endif  // RSACRYPTO_H

@@ -1,17 +1,17 @@
 project(${CLIENT_NAME})
 
 set(SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/TLSClient.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/tlsclient.cpp"
 )
 
 set(HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/TLSClient.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/tlsclient.h"
 )
 
 add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${HEADERS}
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/main_client.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/mainclient.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

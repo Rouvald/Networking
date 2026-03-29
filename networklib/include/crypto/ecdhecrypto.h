@@ -16,15 +16,15 @@ public:
     ECDHECrypto(ECDHECrypto&& other) noexcept;
     ECDHECrypto& operator=(ECDHECrypto&& other) noexcept;
 
-    EVP_PKEY* get_key() const;
-    std::vector<uint8_t> get_public_key_der() const;
-    std::vector<uint8_t> compute_shared_secret(EVP_PKEY* peer_key) const;
+    EVP_PKEY* getKey() const;
+    std::vector<uint8_t> getPublicKeyDer() const;
+    std::vector<uint8_t> computeSharedSecret(EVP_PKEY* peerKey) const;
 
 private:
     EVP_PKEY* _key{nullptr};
 
-    void generate_key();
-    static void handle_errors();
+    void generateKey();
+    static void handleErrors();
 };
 
 #endif  // ECDHECRYPTO_H
