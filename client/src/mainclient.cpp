@@ -8,12 +8,17 @@
 
 int32_t mainThread(int32_t argc, char* argv[])
 {
-    if (argc != 2)
+    std::string ipAddr{"127.0.0.1"};
+    if (argc < 2)
     {
-        std::cout << "Usage: client <server_ip>\n";
-        return EXIT_FAILURE;
+        // std::cout << "Usage: client <server_ip>\n";
+        // return EXIT_FAILURE;
+        std::cout << "argc != 2 -> Using local ip 127.0.0.1" << std::endl;
     }
-    const std::string ipAddr{argv[1]};
+    else
+    {
+        ipAddr = argv[1];
+    }
     try
     {
         std::cout << "Start client" << '\n';
