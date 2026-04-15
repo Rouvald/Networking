@@ -14,6 +14,13 @@ public:
     static std::vector<uint8_t> expandLabel(
         const std::vector<uint8_t>& secret, const std::string& label, const std::vector<uint8_t>& context, size_t length);
 };
+
+struct TrafficKeyMaterial
+{
+    std::vector<uint8_t> key;
+    std::vector<uint8_t> iv;
+};
+
 inline std::vector<uint8_t> deriveEarlySecret(const std::vector<uint8_t>& psk)
 {
     return HKDF::extract(std::vector<uint8_t>(), psk);
@@ -26,6 +33,13 @@ inline std::vector<uint8_t> deriveTrafficSecret(
     const std::vector<uint8_t>& secret, const std::string& label, const std::vector<uint8_t>& transcriptHash)
 {
     return HKDF::expandLabel(secret, label, transcriptHash, types::vars::SHA256_KEY_SIZE);
+}
+inline TrafficKeyMaterial deriveTrafficKeyMaterial(const std::vector<uint8_t>& trafficSecret)
+{
+    return TrafficKeyMaterial{
+        HKDF::expandLabel(trafficSecret, "key", std::vector<uint8_t>(), types::vars::AES_KEY_SIZE),
+        HKDF::expandLabel(trafficSecret, "iv", std::vector<uint8_t>(), types::vars::AES_IV_KEY_SIZE)
+    };
 }
 inline std::vector<uint8_t> deriveMasterSecret(const std::vector<uint8_t>& handshakeSecret)
 {

@@ -3,9 +3,9 @@
 
 #include <cstdint>
 #include <vector>
+#include "network/handshakemessages.h"
 #include "network/tlsrecordlayer.h"
 #include "crypto/ecdhecrypto.h"
-#include "crypto/rsacrypto.h"
 
 class HandshakeManager
 {
@@ -18,12 +18,16 @@ public:
     void doServerHandshake();
 
 private:
+    void appendTranscript(const std::vector<uint8_t>& messageBytes);
+    void sendHandshakeMessage(const std::vector<uint8_t>& messageBytes);
+    std::vector<uint8_t> receiveHandshakeMessage(HandshakeType expectedType);
+    void installHandshakeTrafficKeys(bool isClientRole);
+    void installApplicationTrafficKeys(bool isClientRole);
     std::vector<uint8_t> transcriptHash() const;
 
     btcp::socket& _socket;
     TLSRecordLayer& _record;
     ECDHECrypto _ecdhe;
-    RSACrypto _rsa;
     std::vector<uint8_t> _psk, _earlySecret, _handshakeSecret, _masterSecret, _transcript;
 };
 
