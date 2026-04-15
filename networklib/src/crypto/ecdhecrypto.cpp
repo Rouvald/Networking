@@ -51,6 +51,10 @@ std::vector<uint8_t> ECDHECrypto::getPublicKeyDer() const
 
 std::vector<uint8_t> ECDHECrypto::computeSharedSecret(EVP_PKEY* peerKey) const
 {
+    if (peerKey == nullptr)
+    {
+        return {};
+    }
     EVP_PKEY_CTX* ctx{EVP_PKEY_CTX_new(_key, nullptr)};
     if (ctx == nullptr)
     {
