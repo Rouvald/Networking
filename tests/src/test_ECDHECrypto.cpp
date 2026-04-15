@@ -56,3 +56,32 @@ TEST(ECDHECryptoTest, ComputeSharedSecretNullPeerKeyReturnsEmpty)
     auto secret = crypto.computeSharedSecret(nullptr);
     EXPECT_TRUE(secret.empty());
 }
+
+TEST(ECDHECryptoTest, MoveConstructorTransfersOwnershipAndKeepsKeyUsable)
+{
+    ECDHECrypto peer;
+    ECDHECrypto original;
+    EVP_PKEY* originalKey = original.getKey();
+    const auto expectedSecret = original.computeSharedSecret(peer.getKey());
+
+    ECDHECrypto moved(std::move(original));
+
+    EXPECT_EQ(original.getKey(), nullptr);
+    EXPECT_EQ(moved.getKey(), originalKey);
+    EXPECT_EQ(moved.computeSharedSecret(peer.getKey()), expectedSecret);
+}
+
+TEST(ECDHECryptoTest, MoveAssignmentTransfersOwnership)
+{
+    ECDHECrypto peer;
+    ECDHECrypto source;
+    ECDHECrypto target;
+    EVP_PKEY* sourceKey = source.getKey();
+    const auto expectedSecret = source.computeSharedSecret(peer.getKey());
+
+    target = std::move(source);
+
+    EXPECT_EQ(source.getKey(), nullptr);
+    EXPECT_EQ(target.getKey(), sourceKey);
+    EXPECT_EQ(target.computeSharedSecret(peer.getKey()), expectedSecret);
+}
