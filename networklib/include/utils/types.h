@@ -38,7 +38,7 @@ namespace types
     class ByteReader
     {
     public:
-        explicit ByteReader(const std::vector<uint8_t>& buffer) : _buffer(buffer) {}
+        explicit ByteReader(std::vector<uint8_t> buffer) : _buffer(std::move(buffer)) {}
         ~ByteReader() = default;
 
         ByteReader(const ByteReader&) = delete;
@@ -56,7 +56,7 @@ namespace types
         bool hasRemaining() const { return _pos < _buffer.size(); }
 
     private:
-        const std::vector<uint8_t>& _buffer;
+        std::vector<uint8_t> _buffer;
         size_t _pos{0};
 
         void ensureAvailable(const size_t& len) const;

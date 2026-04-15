@@ -1,29 +1,27 @@
 #include "network/tlsrecordlayer.h"
+#include "utils/types.h"
+#include <stdexcept>
 
 TLSRecordLayer::TLSRecordLayer(const std::vector<uint8_t>& key, const std::vector<uint8_t>& ivKey)
     : _aead(key), _ivKey(ivKey), _seqNum(0)
 {
-    if (ivKey.size() != _ivKey.size())
-    {
-        throw std::invalid_argument("IV size mismatch");
-    }
 }
 
 types::TLSCiphertext TLSRecordLayer::encode(uint8_t type, uint16_t legacyVersion, const std::vector<uint8_t>& plaintext)
 {
-    types::ByteWriter header;
-    header.writeUint8(type);
-    header.writeUint16(legacyVersion);
-    header.writeUint16(0);
-    std::vector<uint8_t> additionalData = header.getBuffer();
-
     std::vector<uint8_t> nonce = computeNonce();
-    std::vector<uint8_t> encrypted = _aead.encrypt(plaintext, additionalData, nonce);
+    std::vector<uint8_t> tag;
+    std::vector<uint8_t> ciphertext = _aead.encrypt(plaintext, nonce, tag);
+
+    // Layout: [tag (16 bytes)] [ciphertext]
+    std::vector<uint8_t> encryptedRecord;
+    encryptedRecord.insert(encryptedRecord.end(), tag.begin(), tag.end());
+    encryptedRecord.insert(encryptedRecord.end(), ciphertext.begin(), ciphertext.end());
 
     types::TLSCiphertext record;
     record._type = type;
     record._legacyVersion = legacyVersion;
-    record._encryptedRecord = encrypted;
+    record._encryptedRecord = std::move(encryptedRecord);
 
     _seqNum++;
     return record;
@@ -31,16 +29,24 @@ types::TLSCiphertext TLSRecordLayer::encode(uint8_t type, uint16_t legacyVersion
 
 std::vector<uint8_t> TLSRecordLayer::decode(const types::TLSCiphertext& record)
 {
-    types::ByteWriter header;
-    header.writeUint8(record._type);
-    header.writeUint16(record._legacyVersion);
-    header.writeUint16(static_cast<uint16_t>(record._encryptedRecord.size()));
-    std::vector<uint8_t> additionalData = header.getBuffer();
+    if (record._encryptedRecord.size() < types::vars::GCM_TAG_SIZE)
+    {
+        throw std::runtime_error("TLSRecord too short to contain GCM tag");
+    }
+    // Layout: [tag (16 bytes)] [ciphertext]
+    std::vector<uint8_t> tag(record._encryptedRecord.begin(),
+                             record._encryptedRecord.begin() + types::vars::GCM_TAG_SIZE);
+    std::vector<uint8_t> ciphertext(record._encryptedRecord.begin() + types::vars::GCM_TAG_SIZE,
+                                    record._encryptedRecord.end());
 
     std::vector<uint8_t> nonce = computeNonce();
-    std::vector<uint8_t> plaintext = _aead.decrypt(record._encryptedRecord, additionalData, nonce);
+    std::vector<uint8_t> plaintext = _aead.decrypt(ciphertext, nonce, tag);
 
-    _seqNum++;
+    if (plaintext.empty() && !ciphertext.empty())
+    {
+        throw std::runtime_error("TLSRecord decryption failed: tag mismatch");
+    }
+    ++_seqNum;
     return plaintext;
 }
 

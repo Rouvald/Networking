@@ -1,16 +1,7 @@
 project(${SERVER_NAME})
 
-set(SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/tlsserver.cpp"
-)
-
-set(HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/tlsserver.h"
-)
 
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
-    ${HEADERS}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/mainserver.cpp"
 )
 

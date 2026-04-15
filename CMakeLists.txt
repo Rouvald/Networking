@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.28)
 
-# setup conan profiles
+# setup conan option
 set(USE_CONAN "ON" CACHE BOOL "Turn ON/OFF using Conan for dependency management")
 
 # for hepler functions
 include(${CMAKE_SOURCE_DIR}/devops/cmake/CMakeHelpers.cmake)
 
+# setup conan profiles if using conan
 if(USE_CONAN)
     setup_conan_profiles()
 endif()

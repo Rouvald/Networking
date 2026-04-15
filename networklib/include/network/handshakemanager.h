@@ -5,6 +5,7 @@
 #include <vector>
 #include "network/tlsrecordlayer.h"
 #include "crypto/ecdhecrypto.h"
+#include "crypto/rsacrypto.h"
 
 class HandshakeManager
 {
@@ -14,6 +15,7 @@ public:
     {}
 
     void doClientHandshake();
+    void doServerHandshake();
 
 private:
     std::vector<uint8_t> transcriptHash() const;
@@ -21,6 +23,7 @@ private:
     btcp::socket& _socket;
     TLSRecordLayer& _record;
     ECDHECrypto _ecdhe;
+    RSACrypto _rsa;
     std::vector<uint8_t> _psk, _earlySecret, _handshakeSecret, _masterSecret, _transcript;
 };
 

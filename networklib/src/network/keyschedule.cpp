@@ -8,6 +8,7 @@
 std::vector<uint8_t> HKDF::extract(const std::vector<uint8_t>& salt, const std::vector<uint8_t>& ikm)
 {
     std::vector<uint8_t> realSalt = salt.empty() ? std::vector<uint8_t>(types::vars::SHA256_KEY_SIZE, 0) : salt;
+    std::vector<uint8_t> realIkm = ikm.empty() ? std::vector<uint8_t>(types::vars::SHA256_KEY_SIZE, 0) : ikm;
 
     EVP_KDF* kdf = EVP_KDF_fetch(nullptr, "HKDF", nullptr);
     if (kdf == nullptr)
@@ -21,7 +22,7 @@ std::vector<uint8_t> HKDF::extract(const std::vector<uint8_t>& salt, const std::
         throw std::runtime_error("Failed to create HKDF context");
     }
     OSSL_PARAM params[] = {OSSL_PARAM_octet_string(OSSL_KDF_PARAM_SALT, realSalt.data(), realSalt.size()),
-        OSSL_PARAM_octet_string(OSSL_KDF_PARAM_KEY, const_cast<uint8_t*>(ikm.data()), ikm.size()),
+        OSSL_PARAM_octet_string(OSSL_KDF_PARAM_KEY, const_cast<uint8_t*>(realIkm.data()), realIkm.size()),
         OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_MODE, (char*)"EXTRACT_ONLY", strlen("EXTRACT_ONLY")),
         OSSL_PARAM_construct_utf8_string(OSSL_KDF_PARAM_DIGEST, (char*)"SHA256", strlen("SHA256")), OSSL_PARAM_construct_end()};
 

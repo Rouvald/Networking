@@ -115,10 +115,10 @@ HandshakeMessage Finished::toMessage() const
     return HandshakeMessage{HandshakeType::finished, writer.getBuffer()};
 }
 
-Finished Finished::parseBody(const std::vector<uint8_t>& body)
+Finished Finished::parseBody(const std::vector<uint8_t>& buf)
 {
     Finished finished;
-    finished.verifyData = body;
+    finished.verifyData = extractHandshakeBody(buf, HandshakeType::finished);
     return finished;
 }
 
@@ -177,6 +177,7 @@ KeyShareEntry parseKeyShare(const std::vector<uint8_t>& extBuf)
         if (type == 0x0033)
         {
             types::ByteReader inner(reader.readBytes(length));
+            inner.readUint16();  // skip list length prefix written by writeKeyShare
             uint16_t group = inner.readUint16();
             uint16_t keyLength = inner.readUint16();
             std::vector<uint8_t> key = inner.readBytes(keyLength);
