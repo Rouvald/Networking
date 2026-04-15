@@ -7,7 +7,7 @@
 #include <exception>
 #include <iostream>
 
-int32_t mainThread(int32_t argc, char* argv[])
+int32_t mainThread()
 {
     try
     {
@@ -34,7 +34,7 @@ int32_t mainThread(int32_t argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-int main(int32_t argc, char* argv[])
+int main()
 {
-    return mainThread(argc, argv);
+    return mainThread();
 }

@@ -59,7 +59,7 @@ std::vector<uint8_t> AESCrypto::encrypt(const std::vector<uint8_t>& plaintext, c
     }
 
     EVP_CIPHER_CTX_free(ctx);
-    ciphertext.resize(ciphertext_len);
+    ciphertext.resize(static_cast<std::vector<uint8_t>::size_type>(ciphertext_len));
     return ciphertext;
 }
 
@@ -100,7 +100,7 @@ std::vector<uint8_t> AESCrypto::decrypt(
     }
     plaintext_len += len;
     EVP_CIPHER_CTX_free(ctx);
-    plaintext.resize(plaintext_len);
+    plaintext.resize(static_cast<std::vector<uint8_t>::size_type>(plaintext_len));
     return plaintext;
 }
 

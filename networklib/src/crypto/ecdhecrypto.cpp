@@ -43,7 +43,11 @@ EVP_PKEY* ECDHECrypto::getKey() const
 std::vector<uint8_t> ECDHECrypto::getPublicKeyDer() const
 {
     const int32_t len{i2d_PUBKEY(_key, nullptr)};
-    std::vector<uint8_t> out(len);
+    if (len <= 0)
+    {
+        handleErrors();
+    }
+    std::vector<uint8_t> out(static_cast<std::vector<uint8_t>::size_type>(len));
     uint8_t* tmp{out.data()};
     i2d_PUBKEY(_key, &tmp);
     return out;

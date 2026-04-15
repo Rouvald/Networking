@@ -1,4 +1,5 @@
 #include "utils/types.h"
+#include <iterator>
 #include <stdexcept>
 
 constexpr uint8_t AMOUNT_8_BITS{8};
@@ -56,7 +57,10 @@ uint32_t types::ByteReader::readUint24()
 std::vector<uint8_t> types::ByteReader::readBytes(size_t length)
 {
     ensureAvailable(length);
-    std::vector<uint8_t> data(_buffer.begin() + _pos, _buffer.begin() + _pos + length);
+    using DifferenceType = std::vector<uint8_t>::difference_type;
+    const auto begin = std::next(_buffer.cbegin(), static_cast<DifferenceType>(_pos));
+    const auto end = std::next(begin, static_cast<DifferenceType>(length));
+    std::vector<uint8_t> data(begin, end);
     _pos += length;
     return data;
 }
